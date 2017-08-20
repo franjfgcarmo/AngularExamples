@@ -1,5 +1,4 @@
 import {AfterContentInit, Component, ElementRef, ViewChild} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/range';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/from';
@@ -12,9 +11,9 @@ import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/filter';
 import {NullVec, Vector} from './vector';
 
-const r = 8;
+const r = 20;
 const k = 30;
-const w = r / Math.sqrt(2.);
+const w = () => r / Math.sqrt(2.);
 
 
 @Component({
@@ -31,8 +30,8 @@ export class AppComponent implements AfterContentInit {
   ctx: CanvasRenderingContext2D;
   height = 800;
   width = 800;
-  cols: number = Math.floor(this.width / w);
-  rows: number = Math.floor(this.height / w);
+  cols: number = Math.floor(this.width / w());
+  rows: number = Math.floor(this.height / w());
 
   ordered: Vector[] = [];
 
@@ -57,8 +56,8 @@ export class AppComponent implements AfterContentInit {
 
 
   private addToGrid(vec: Vector) {
-    const x = Math.floor(vec.x / w);
-    const y = Math.floor(vec.y / w);
+    const x = Math.floor(vec.x / w());
+    const y = Math.floor(vec.y / w());
     this.grid[x + y * this.cols] = vec;
   }
 
@@ -90,8 +89,8 @@ export class AppComponent implements AfterContentInit {
         this.ctx.fillStyle = 'blue';
         drawVec(sample, this.ctx);
 
-        const col = Math.floor(sample.x / w);
-        const row = Math.floor(sample.y / w);
+        const col = Math.floor(sample.x / w());
+        const row = Math.floor(sample.y / w());
         const vectorFromGrid = this.grid[col + row * this.cols];
 
         if (col > -1 && row > -1 && col < this.cols && row < this.rows && vectorFromGrid == null) {
