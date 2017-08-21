@@ -1,1 +1,6 @@
-
+.simContainer {
+  display: flex;
+  flex-direction: row;
+  align-content: space-between;
+  align-items: stretch;
+}

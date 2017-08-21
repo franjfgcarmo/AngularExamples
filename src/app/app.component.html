@@ -3,5 +3,8 @@
   <h1>
     Welcome to {{title}}!
   </h1>
-  <canvas [width]="width" [height]="height" #canvas></canvas>
+  <div class="simContainer">
+    <app-poison #poison [play]="play"></app-poison>
+    <app-sim-controls (playChanged)="setPlay($event)" (onReset)="poison.reset()"></app-sim-controls>
+  </div>
 </div>
