@@ -16,7 +16,6 @@ export class SimControlsComponent implements OnInit {
   _k: number;
 
   constructor(private poissonConfig: PoissonConfigService) {
-    console.log(poissonConfig);
   }
 
   get radius() {
@@ -24,12 +23,7 @@ export class SimControlsComponent implements OnInit {
   }
 
   set radius(radius: number) {
-    /*if (this.play && radius > this.poissonConfig.r) {
-      this.poissonConfig.r = radius;
-      return;
-    }
-    this.reset();*/
-    this.poissonConfig.r = radius;
+     this.poissonConfig.r = radius;
   }
 
   get k() {

@@ -14,8 +14,6 @@ import {PoissonConfigService} from './poisson-config.service';
 import {RandomService} from '../shared/random.service';
 import {CanvasDrawHelperService} from '../shared/canvas-draw-helper.service';
 import {Circle} from '../shared/circle';
-import {ok} from 'assert';
-
 
 @Component({
   selector: 'app-poisson',
@@ -38,8 +36,8 @@ export class PoissonComponent implements AfterContentInit {
   play = false;
 
   constructor(private poissonConfig: PoissonConfigService, private random: RandomService, private drawHelper: CanvasDrawHelperService) {
-    this.width = 800;
-    this.height = 600;
+    this.width = 500;
+    this.height = 500;
     this.rows = Math.floor(this.width / this.poissonConfig.w);
     this.cols = Math.floor(this.height / this.poissonConfig.w);
   }
@@ -60,10 +58,10 @@ export class PoissonComponent implements AfterContentInit {
     for (let i = 0; i < this.rows; i++) {
       this.grid[i] = new Array<Circle>(this.cols);
     }
-    /*    const vec = new Vector(this.width / 2, this.height / 2);
-        this.active.push(vec);
-        this.addToGrid(vec);*/
     this.step = 0;
+    this.ctx.globalAlpha = 1;
+    this.ctx.fillStyle = 'black';
+    this.ctx.fillRect(0, 0, this.width, this.height);
   }
 
   private addToGrid(vec: Vector, circleRadius: number) {
@@ -147,16 +145,12 @@ export class PoissonComponent implements AfterContentInit {
   }
 
   private drawStep(step: number = this.step, radius: number = this.poissonConfig.r) {
+    this.ctx.globalAlpha = 1;
     this.ctx.fillStyle = 'black';
-    this.ctx.globalAlpha = 0.2;
-    // this.ctx.fillRect(0, 0, this.width, this.height);
-
-    const hue = 255 * Math.abs(Math.sin(step * 0.01));
-    const sat = 255 * Math.abs(Math.cos(step * 0.02));
+    this.ctx.fillRect(0, 0, this.width, this.height);
 
     this.grid.forEach(circles => circles.forEach((circle) => {
         if (circle) {
-          this.ctx.fillStyle = `hsl(${hue},${sat}%,s%)`;
           circle.draw(this.step, this.ctx);
         }
       }
