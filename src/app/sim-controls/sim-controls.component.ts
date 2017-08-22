@@ -8,7 +8,7 @@ import {ChangeDetectionStrategy, Component, EventEmitter, OnInit, Output} from '
 })
 export class SimControlsComponent implements OnInit {
 
-  play = true;
+  play = false;
 
   @Output() playChanged: EventEmitter<boolean> = new EventEmitter();
   @Output() onReset: EventEmitter<boolean> = new EventEmitter();
@@ -32,7 +32,6 @@ export class SimControlsComponent implements OnInit {
     this.play = false;
     this.emitPlay();
     this.onReset.emit(true);
-    this.togglePlay();
   }
 
 }

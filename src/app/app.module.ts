@@ -2,7 +2,7 @@ import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 
 import {AppComponent} from './app.component';
-import {PoisonModule} from './poison/poison.module';
+import {PoissonModule} from './poisson/poisson.module';
 import { SimControlsComponent } from './sim-controls/sim-controls.component';
 
 @NgModule({
@@ -12,7 +12,7 @@ import { SimControlsComponent } from './sim-controls/sim-controls.component';
   ],
   imports: [
     BrowserModule,
-    PoisonModule
+    PoissonModule
   ],
   bootstrap: [AppComponent]
 })

@@ -4,7 +4,7 @@
     Welcome to {{title}}!
   </h1>
   <div class="simContainer">
-    <app-poison #poison [play]="play"></app-poison>
-    <app-sim-controls (playChanged)="setPlay($event)" (onReset)="poison.reset()"></app-sim-controls>
+    <app-poisson #poisson [play]="play"></app-poisson>
+    <app-sim-controls (playChanged)="setPlay($event)" (onReset)="poisson.reset()"></app-sim-controls>
   </div>
 </div>

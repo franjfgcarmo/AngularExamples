@@ -24,4 +24,12 @@ export class CanvasDrawHelperService {
     ctx.stroke();
   }
 
+  drawPath(points: Vector[], ctx: CanvasRenderingContext2D, colorFn?: (vec: Vector) => string) {
+    ctx.moveTo(points[0].x, points[0].y);
+    ctx.beginPath();
+    points.forEach((vec) => ctx.lineTo(vec.x, vec.y))
+    ctx.closePath();
+    ctx.stroke();
+  }
+
 }

@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
 
 @Injectable()
-export class PoisonConfigService {
+export class PoissonConfigService {
 
   public k = 15; // iterations
 
-  private _r = 10; // minimal distance between points
+  private _r = 5; // minimal distance between points
   private _w;
 
   constructor() {
