@@ -3,7 +3,8 @@ import {Injectable} from '@angular/core';
 @Injectable()
 export class PoissonConfigService {
 
-  public k = 15; // iterations
+  public k = 15; // samples / iteration
+  public iterationsPerFrame = 10;
 
   private _r = 5; // minimal distance between points
   private _w;
@@ -13,7 +14,6 @@ export class PoissonConfigService {
 
   set r(r: number) {
     this._r = r;
-    this._w = null;
   }
 
   get r() {

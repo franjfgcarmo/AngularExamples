@@ -1,6 +1,19 @@
-.simContainer {
+:host {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-content: space-between;
   align-items: stretch;
+  width: 100vw;
+}
+
+.simContainer {
+  width: 100vw;
+  display: flex;
+  flex-direction: row;
+  align-content: space-around;
+  align-items: center;
+}
+
+app-poisson {
+  flex: 1 1 100%;
 }

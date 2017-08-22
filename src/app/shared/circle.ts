@@ -5,11 +5,15 @@ export class Circle {
   }
 
   draw(step: number, ctx: CanvasRenderingContext2D) {
+    const offsetX = 0;
+    const offsetY = 0;
     ctx.beginPath();
-    const offsetX = this.pos.x * 0.01 * Math.sin(step);
-    const offsetY = this.pos.y * 0.01 * Math.sin(step);
     ctx.arc(this.pos.x + offsetX, this.pos.y + offsetY, this.r, 0, 2 * Math.PI, true);
     ctx.fill();
+  }
+
+  lineToNeighbour(neighbour: Circle){
+
   }
 }
 

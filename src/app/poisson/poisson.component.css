@@ -1,0 +1,8 @@
+.poissonContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+:host {
+  display: flex;
+}

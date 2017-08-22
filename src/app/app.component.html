@@ -1,10 +1,7 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <h1>
-    Welcome to {{title}}!
-  </h1>
-  <div class="simContainer">
-    <app-poisson #poisson [play]="play"></app-poisson>
-    <app-sim-controls (playChanged)="setPlay($event)" (onReset)="poisson.reset()"></app-sim-controls>
-  </div>
+<h1>
+  Welcome to {{title}}!
+</h1>
+<div class="simContainer">
+  <app-poisson></app-poisson>
 </div>

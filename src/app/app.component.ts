@@ -6,16 +6,7 @@ import {Component, OnInit} from '@angular/core';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'POISSON';
-
-  play = false;
-
-  ngOnInit() {
-  }
-
-  setPlay(play: boolean) {
-    this.play = play;
-  }
 }
 

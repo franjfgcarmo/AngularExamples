@@ -1,1 +1,4 @@
-<canvas (click)="addPoint($event)" [width]="width" [height]="height" #canvas></canvas>
+<div class="poissonContainer">
+  <canvas (click)="addPoint($event)" [width]="width" [height]="height" #canvas></canvas>
+  <app-sim-controls (playChanged)="setPlay($event)" (onReset)="reset()"></app-sim-controls>
+</div>

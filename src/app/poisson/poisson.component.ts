@@ -13,7 +13,7 @@ import 'rxjs/add/operator/filter';
 import {PoissonConfigService} from './poisson-config.service';
 import {RandomService} from '../shared/random.service';
 import {CanvasDrawHelperService} from '../shared/canvas-draw-helper.service';
-import {Circle} from '../shared/point';
+import {Circle} from '../shared/circle';
 import {ok} from 'assert';
 
 
@@ -26,7 +26,6 @@ import {ok} from 'assert';
 export class PoissonComponent implements AfterContentInit {
 
   @ViewChild('canvas') canvas: ElementRef;
-  @Input() play = false;
 
   grid: Circle[][] = [];
   active: Vector[] = [];
@@ -36,6 +35,7 @@ export class PoissonComponent implements AfterContentInit {
   cols: number;
   rows: number;
   step = 0;
+  play = false;
 
   constructor(private poissonConfig: PoissonConfigService, private random: RandomService, private drawHelper: CanvasDrawHelperService) {
     this.width = 800;
@@ -87,7 +87,7 @@ export class PoissonComponent implements AfterContentInit {
     this.drawStep(this.step);
     if (this.play) {
       this.step++;
-      for (let f = 0; f < 25 && this.active.length > 0; f++) {
+      for (let f = 0; f < this.poissonConfig.iterationsPerFrame && this.active.length > 0; f++) {
         const randActiveIndex = Math.floor(this.random.randomTo(this.active.length));
         const pos = this.active[randActiveIndex];
         let found = false;
@@ -108,7 +108,7 @@ export class PoissonComponent implements AfterContentInit {
             const ok = neighbours.every((neighbour: Circle) => {
               this.ctx.strokeStyle = 'white';
               if (neighbour) {
-                this.ctx.lineWidth = 1;
+                this.ctx.lineWidth = 0.5;
                 this.drawHelper.drawLine(sample, neighbour.pos, this.ctx);
                 this.ctx.fillStyle = 'green';
                 neighbour.draw(this.step, this.ctx);
@@ -148,22 +148,19 @@ export class PoissonComponent implements AfterContentInit {
 
   private drawStep(step: number = this.step, radius: number = this.poissonConfig.r) {
     this.ctx.fillStyle = 'black';
-    this.ctx.fillRect(0, 0, this.width, this.height);
+    this.ctx.globalAlpha = 0.2;
+    // this.ctx.fillRect(0, 0, this.width, this.height);
 
-    const foundGridVecs = this.grid
-      .reduce((flatted: Circle[], actual: Circle[]) =>
-        flatted.concat(actual.filter(
-          (circle: Circle) => circle)
-        ), []);
     const hue = 255 * Math.abs(Math.sin(step * 0.01));
     const sat = 255 * Math.abs(Math.cos(step * 0.02));
 
-    foundGridVecs
-      .forEach((circle) => {
-          this.ctx.fillStyle = `hsl(${hue},${sat}%,50%)`;
+    this.grid.forEach(circles => circles.forEach((circle) => {
+        if (circle) {
+          this.ctx.fillStyle = `hsl(${hue},${sat}%,s%)`;
           circle.draw(this.step, this.ctx);
         }
-      );
+      }
+    ));
 
     this.ctx.fillStyle = 'red';
     this.active.forEach((vec) => {
@@ -171,15 +168,20 @@ export class PoissonComponent implements AfterContentInit {
     });
   }
 
-  getNeighbours(vec: Vector, distance: number = this.poissonConfig.r) {
+  getNeighbours(vec: Vector, distance: number = this.poissonConfig.r): Circle[] {
     const cellWidth = this.poissonConfig.w;
     const row = Math.floor(vec.x / cellWidth);
     const col = Math.floor(vec.y / cellWidth);
     const distanceCheck = this.isInDistanceFactory(row, col, distance);
+    const result: Circle[] = [];
 
-    return this.grid.map((colVecs: Circle[], rowToCheck: number) =>
-      colVecs.filter((ignored: Circle, colToCheck: number) => distanceCheck(rowToCheck, colToCheck)))
-      .reduce((head, tail) => head.concat(tail), []);
+    this.grid.forEach((colVecs: Circle[], rowToCheck: number) =>
+      colVecs.forEach((neighbour: Circle, colToCheck: number) => {
+        if (distanceCheck(rowToCheck, colToCheck)) {
+          result.push(neighbour);
+        }
+      }));
+    return result;
   }
 
   private isInDistanceFactory(row, col, distance) {
@@ -197,5 +199,9 @@ export class PoissonComponent implements AfterContentInit {
     const vector = new Vector($event.offsetX, $event.offsetY);
     this.addToGrid(vector, this.currentCircleRadius(vector));
     this.active.push(vector);
+  }
+
+  setPlay(play: boolean) {
+    this.play = play;
   }
 }

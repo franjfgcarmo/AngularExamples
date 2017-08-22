@@ -3,12 +3,11 @@ import {NgModule} from '@angular/core';
 
 import {AppComponent} from './app.component';
 import {PoissonModule} from './poisson/poisson.module';
-import { SimControlsComponent } from './sim-controls/sim-controls.component';
+import { SimControlsComponent } from './poisson/sim-controls/sim-controls.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SimControlsComponent,
   ],
   imports: [
     BrowserModule,
