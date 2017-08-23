@@ -1,50 +1,57 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core';
 import {PoissonConfigService} from '../poisson-config.service';
+import {Subscription} from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-sim-controls',
   templateUrl: './sim-controls.component.html',
   styleUrls: ['./sim-controls.component.css'],
 })
-export class SimControlsComponent implements OnInit {
+export class SimControlsComponent implements OnInit, OnDestroy {
 
-  play = false;
 
   @Output() playChanged: EventEmitter<boolean> = new EventEmitter();
   @Output() onReset: EventEmitter<boolean> = new EventEmitter();
-  _radius: number;
-  _k: number;
+
+  play = false;
+  iterationsPerFrame: number;
+  radius: number;
+  k: number;
+
+  private subscriptions: Subscription[] = [];
 
   constructor(private poissonConfig: PoissonConfigService) {
-  }
 
-  get radius() {
-    return this.poissonConfig.r;
-  }
-
-  set radius(radius: number) {
-     this.poissonConfig.r = radius;
-  }
-
-  get k() {
-    return this.poissonConfig.k;
-  }
-
-  set k(k: number) {
-    this.poissonConfig.k = k;
-  }
-
-  get iterationsPerFrame() {
-    return this.poissonConfig.iterationsPerFrame;
-  }
-
-  set iterationsPerFrame(iterationsPerFrame: number) {
-    this.poissonConfig.iterationsPerFrame = iterationsPerFrame;
   }
 
   ngOnInit() {
-    this._radius = this.poissonConfig.r;
+    this.subscriptions.push(this.poissonConfig.r$.subscribe((r) => this.radius = r));
+    this.subscriptions.push(this.poissonConfig.k$.subscribe((k) => this.k = k));
+    this.subscriptions.push(this.poissonConfig.iterationsPerFrame$.subscribe((iters) => this.iterationsPerFrame = iters));
   }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+  }
+
+  radiusChanged(radius: number) {
+    if (radius) {
+      this.poissonConfig.r$.next(radius);
+    }
+  }
+
+  kChanged(k: number) {
+    if (k) {
+      this.poissonConfig.k$.next(k);
+    }
+  }
+
+  iterationsPerFrameChanged(iterationsPerFrame: number) {
+    if (iterationsPerFrame) {
+      this.poissonConfig.iterationsPerFrame$.next(iterationsPerFrame);
+    }
+  }
+
 
   private emitPlay() {
     this.playChanged.emit(this.play);

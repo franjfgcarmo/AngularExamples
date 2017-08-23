@@ -1,31 +1,17 @@
 import {Injectable} from '@angular/core';
+import {Subject} from 'rxjs/Subject';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class PoissonConfigService {
 
-  public k = 15; // samples / iteration
-  public iterationsPerFrame = 10;
+  public k$: BehaviorSubject<number> = new BehaviorSubject(15);
+  public iterationsPerFrame$: BehaviorSubject<number> = new BehaviorSubject(10);
 
-  private _r = 5; // minimal distance between points
-  private _w;
+  public r$: BehaviorSubject<number> = new BehaviorSubject(5);
+  public w$: Observable<number> = this.r$.map((radius) => radius / Math.sqrt(2));
 
   constructor() {
   }
-
-  set r(r: number) {
-    this._r = r;
-  }
-
-  get r() {
-    return this._r;
-  }
-
-  // cell width
-  get w() {
-    if (!this._w) {
-      this._w = this.r / Math.sqrt(2.);
-    }
-    return this._w;
-  }
-
 }

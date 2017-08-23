@@ -1,4 +1,12 @@
-import {AfterContentInit, ChangeDetectionStrategy, Component, ElementRef, Input, ViewChild} from '@angular/core';
+import {
+  AfterContentInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  OnDestroy,
+  ViewChild,
+  OnInit
+} from '@angular/core';
 import {Vector} from '../shared/vector';
 import 'rxjs/add/observable/range';
 import 'rxjs/add/observable/of';
@@ -14,6 +22,7 @@ import {PoissonConfigService} from './poisson-config.service';
 import {RandomService} from '../shared/random.service';
 import {CanvasDrawHelperService} from '../shared/canvas-draw-helper.service';
 import {Circle} from '../shared/circle';
+import {Subscription} from 'rxjs/Subscription';
 
 @Component({
   selector: 'app-poisson',
@@ -21,7 +30,11 @@ import {Circle} from '../shared/circle';
   styleUrls: ['./poisson.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PoissonComponent implements AfterContentInit {
+export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
+
+
+  r: any;
+  k: any;
 
   @ViewChild('canvas') canvas: ElementRef;
 
@@ -34,12 +47,28 @@ export class PoissonComponent implements AfterContentInit {
   rows: number;
   step = 0;
   play = false;
+  iterationsPerFrame: number;
+  w: number;
+  private subscriptions: Subscription;
 
   constructor(private poissonConfig: PoissonConfigService, private random: RandomService, private drawHelper: CanvasDrawHelperService) {
+  }
+
+  ngOnInit(): void {
     this.width = 500;
     this.height = 500;
-    this.rows = Math.floor(this.width / this.poissonConfig.w);
-    this.cols = Math.floor(this.height / this.poissonConfig.w);
+
+    this.subscriptions = (this.poissonConfig.iterationsPerFrame$.subscribe((iterations) => this.iterationsPerFrame = iterations))
+      .add(this.poissonConfig.k$.subscribe((k) => this.k = k))
+      .add(this.poissonConfig.r$.subscribe((r) => this.r = r))
+      .add(this.poissonConfig.w$.subscribe((w) => this.w = w));
+
+    this.rows = Math.floor(this.width / this.w);
+    this.cols = Math.floor(this.height / this.w);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   ngAfterContentInit(): void {
@@ -65,15 +94,15 @@ export class PoissonComponent implements AfterContentInit {
   }
 
   private addToGrid(vec: Vector, circleRadius: number) {
-    const x = Math.floor(vec.x / this.poissonConfig.w);
-    const y = Math.floor(vec.y / this.poissonConfig.w);
+    const x = Math.floor(vec.x / this.w);
+    const y = Math.floor(vec.y / this.w);
 
     this.grid[x][y] = new Circle(vec, circleRadius);
   }
 
   private getFromGrid(vec: Vector): Circle {
-    const x = Math.floor(vec.x / this.poissonConfig.w);
-    const y = Math.floor(vec.y / this.poissonConfig.w);
+    const x = Math.floor(vec.x / this.w);
+    const y = Math.floor(vec.y / this.w);
     return this.grid[x][y];
   }
 
@@ -85,18 +114,18 @@ export class PoissonComponent implements AfterContentInit {
     this.drawStep(this.step);
     if (this.play) {
       this.step++;
-      for (let f = 0; f < this.poissonConfig.iterationsPerFrame && this.active.length > 0; f++) {
+      for (let f = 0; f < this.iterationsPerFrame && this.active.length > 0; f++) {
         const randActiveIndex = Math.floor(this.random.randomTo(this.active.length));
         const pos = this.active[randActiveIndex];
         let found = false;
         const radius = this.currentDistanceForPos(pos);
-        for (let n = 0; n < this.poissonConfig.k; n++) {
+        for (let n = 0; n < this.k; n++) {
           const sample = Vector.randomVec().setMag(this.random.random(radius, 2 * radius)).add(pos);
           this.ctx.fillStyle = 'blue';
           this.drawHelper.drawVec(sample, radius * 0.2, this.ctx);
 
-          const row = Math.floor(sample.x / this.poissonConfig.w);
-          const col = Math.floor(sample.y / this.poissonConfig.w);
+          const row = Math.floor(sample.x / this.w);
+          const col = Math.floor(sample.y / this.w);
 
           if (col > -1 && row > -1 && col < this.cols && row < this.rows && !this.getFromGrid(sample)) {
 
@@ -136,15 +165,11 @@ export class PoissonComponent implements AfterContentInit {
     return radius * 0.2;
   }
 
-  private currentDistance() {
-    return this.poissonConfig.r;
-  }
-
   private currentDistanceForPos(pos: Vector) {
-    return this.poissonConfig.r * (1 + 2 * Math.abs(Math.sin((pos.x + pos.y) * 0.01)));
+    return this.r * (1 + 2 * Math.abs(Math.sin((pos.x + pos.y) * 0.01)));
   }
 
-  private drawStep(step: number = this.step, radius: number = this.poissonConfig.r) {
+  private drawStep(step: number = this.step, radius: number = this.r) {
     this.ctx.globalAlpha = 1;
     this.ctx.fillStyle = 'black';
     this.ctx.fillRect(0, 0, this.width, this.height);
@@ -158,12 +183,12 @@ export class PoissonComponent implements AfterContentInit {
 
     this.ctx.fillStyle = 'red';
     this.active.forEach((vec) => {
-      this.drawHelper.drawVec(vec, this.poissonConfig.r * 0.2, this.ctx);
+      this.drawHelper.drawVec(vec, this.r * 0.2, this.ctx);
     });
   }
 
-  getNeighbours(vec: Vector, distance: number = this.poissonConfig.r): Circle[] {
-    const cellWidth = this.poissonConfig.w;
+  getNeighbours(vec: Vector, distance: number = this.r): Circle[] {
+    const cellWidth = this.w;
     const row = Math.floor(vec.x / cellWidth);
     const col = Math.floor(vec.y / cellWidth);
     const distanceCheck = this.isInDistanceFactory(row, col, distance);
@@ -184,8 +209,8 @@ export class PoissonComponent implements AfterContentInit {
   }
 
   private isInDistance(dr, dc, distance): boolean {
-    const rowW = this.poissonConfig.w * dr;
-    const colW = this.poissonConfig.w * dc;
+    const rowW = this.w * dr;
+    const colW = this.w * dc;
     return distance * distance >= rowW * rowW + colW * colW;
   }
 
