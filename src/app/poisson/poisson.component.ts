@@ -5,7 +5,7 @@ import {
   ElementRef,
   OnDestroy,
   ViewChild,
-  OnInit
+  OnInit, Inject
 } from '@angular/core';
 import {Vector} from '../shared/vector';
 import 'rxjs/add/observable/range';
@@ -20,9 +20,10 @@ import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/filter';
 import {PoissonConfigService} from './poisson-config.service';
 import {RandomService} from '../shared/random.service';
-import {CanvasDrawHelperService} from '../shared/canvas-draw-helper.service';
 import {Circle} from '../shared/circle';
 import {Subscription} from 'rxjs/Subscription';
+import {DrawHelper} from '../shared/draw-helper';
+import {DRAW_HELPER} from '../shared/shared.module';
 
 @Component({
   selector: 'app-poisson',
@@ -32,7 +33,6 @@ import {Subscription} from 'rxjs/Subscription';
 })
 export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
 
-
   r: any;
   k: any;
 
@@ -40,7 +40,6 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
 
   grid: Circle[][] = [];
   active: Vector[] = [];
-  ctx: CanvasRenderingContext2D;
   height: number;
   width: number;
   cols: number;
@@ -51,7 +50,9 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
   w: number;
   private subscriptions: Subscription;
 
-  constructor(private poissonConfig: PoissonConfigService, private random: RandomService, private drawHelper: CanvasDrawHelperService) {
+  constructor(private poissonConfig: PoissonConfigService,
+              private random: RandomService,
+              @Inject(DRAW_HELPER) private drawHelper: DrawHelper) {
   }
 
   ngOnInit(): void {
@@ -79,7 +80,8 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
   setup() {
     const canvas: HTMLCanvasElement = this.canvas.nativeElement;
 
-    this.ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('webgl');
+    this.drawHelper.initCtx(ctx);
     this.grid = [];
     this.active = [];
 
@@ -88,9 +90,10 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
       this.grid[i] = new Array<Circle>(this.cols);
     }
     this.step = 0;
-    this.ctx.globalAlpha = 1;
-    this.ctx.fillStyle = 'black';
-    this.ctx.fillRect(0, 0, this.width, this.height);
+
+    this.drawHelper.setFillColor('black');
+    this.drawHelper.fillRect(0, 0, this.width, this.height);
+
   }
 
   private addToGrid(vec: Vector, circleRadius: number) {
@@ -121,24 +124,28 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
         const radius = this.currentDistanceForPos(pos);
         for (let n = 0; n < this.k; n++) {
           const sample = Vector.randomVec().setMag(this.random.random(radius, 2 * radius)).add(pos);
-          this.ctx.fillStyle = 'blue';
-          this.drawHelper.drawVec(sample, radius * 0.2, this.ctx);
+          this.drawHelper
+            .setFillColor('blue')
+            .drawVec(sample, radius * 0.2);
 
           const row = Math.floor(sample.x / this.w);
           const col = Math.floor(sample.y / this.w);
 
           if (col > -1 && row > -1 && col < this.cols && row < this.rows && !this.getFromGrid(sample)) {
 
-            this.ctx.fillStyle = 'yellow';
-            this.drawHelper.drawVec(pos, radius * 0.2, this.ctx);
+            this.drawHelper
+              .setFillColor('yellow')
+              .drawVec(pos, radius * 0.2);
             const neighbours = this.getNeighbours(sample, radius);
             const ok = neighbours.every((neighbour: Circle) => {
-              this.ctx.strokeStyle = 'white';
+              this.drawHelper.setStrokeColor('white');
               if (neighbour) {
-                this.ctx.lineWidth = 0.5;
-                this.drawHelper.drawLine(sample, neighbour.pos, this.ctx);
-                this.ctx.fillStyle = 'green';
-                neighbour.draw(this.step, this.ctx);
+                this.drawHelper
+                  .setLineWidth(0.5)
+                  .drawLine(sample, neighbour.pos)
+                  .setFillColor('green')
+                  .drawCircle(neighbour, this.step);
+
                 const d = sample.fastDist(neighbour.pos);
                 const rQuad = radius * radius;
                 return d >= rQuad;
@@ -170,20 +177,18 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
   }
 
   private drawStep(step: number = this.step, radius: number = this.r) {
-    this.ctx.globalAlpha = 1;
-    this.ctx.fillStyle = 'black';
-    this.ctx.fillRect(0, 0, this.width, this.height);
+    this.drawHelper.clear(this.width, this.height);
 
     this.grid.forEach(circles => circles.forEach((circle) => {
         if (circle) {
-          circle.draw(this.step, this.ctx);
+          this.drawHelper.drawCircle(circle, this.step);
         }
       }
     ));
 
-    this.ctx.fillStyle = 'red';
+    this.drawHelper.setFillColor('red');
     this.active.forEach((vec) => {
-      this.drawHelper.drawVec(vec, this.r * 0.2, this.ctx);
+      this.drawHelper.drawVec(vec, this.r * 0.2);
     });
   }
 
