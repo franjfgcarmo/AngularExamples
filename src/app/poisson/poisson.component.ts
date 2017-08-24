@@ -16,9 +16,9 @@ import 'rxjs/add/operator/toArray';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/shareReplay';
 import 'rxjs/add/operator/scan';
-
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/count';
 import {PoissonConfigService} from './poisson-config.service';
 import {RandomService} from '../shared/random.service';
 import {Circle} from '../shared/circle';
@@ -27,12 +27,13 @@ import {DrawHelper} from '../shared/draw-helper';
 import {DRAW_HELPER} from '../shared/shared.module';
 import {Subject} from 'rxjs/Subject';
 import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
   selector: 'app-poisson',
   templateUrl: './poisson.component.html',
   styleUrls: ['./poisson.component.css'],
-  changeDetection: ChangeDetectionStrategy.Default
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
 
@@ -44,19 +45,16 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
   width = 500;
   height = 500;
 
-  foundCirclesSubject: Subject<Circle> = new Subject<Circle>();
-  foundCircles$: Observable<Circle[]> = this.foundCirclesSubject.asObservable()
-    .map((circle: Circle) => new Circle(circle.pos.add(-this.width / 2, -this.height / 2), circle.r))
-    .scan((pre: Circle[], current: Circle) => {
-      pre.push(current);
-      return pre;
-    }, []);
+  foundCirclesSubject: Subject<Circle>;
+  foundCircles$: Observable<Circle[]>;
   grid: Circle[][] = [];
   active: Vector[] = [];
 
   cols: number;
   rows: number;
-  step = 0;
+  stepSubject: Subject<void>;
+  step$: Observable<number>;
+
   play = false;
   iterationsPerFrame: number;
   w: number;
@@ -101,11 +99,23 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
     for (let i = 0; i < this.rows; i++) {
       this.grid[i] = new Array<Circle>(this.cols);
     }
-    this.step = 0;
 
-    /*this.drawHelper.setFillColor('black');
-    this.drawHelper.fillRect(0, 0, this.width, this.height);*/
+    this.stepSubject = new Subject<void>();
+    this.step$ = this.stepSubject.scan((prev, ignored) => prev + 1, 0);
 
+    if (!this.foundCirclesSubject || this.foundCirclesSubject.isStopped) {
+      this.foundCirclesSubject = new Subject<Circle>();
+      this.foundCircles$ = this.foundCirclesSubject.asObservable()
+        .map((circle: Circle) => new Circle(circle.pos.add(-this.width / 2, -this.height / 2), circle.r))
+        .scan((pre: Circle[], current: Circle) => {
+          pre.push(current);
+          return pre;
+        }, []);
+
+      /*this.drawHelper.setFillColor('black');
+      this.drawHelper.fillRect(0, 0, this.width, this.height);*/
+
+    }
   }
 
   private addToGrid(vec: Vector, circleRadius: number) {
@@ -124,13 +134,14 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
   }
 
   reset(): void {
+    this.foundCirclesSubject.complete();
     this.setup();
   }
 
   paintLoop(): void {
     // this.drawStep(this.step);
+    this.stepSubject.next();
     if (this.play) {
-      this.step++;
       for (let f = 0; f < this.iterationsPerFrame && this.active.length > 0; f++) {
         const randActiveIndex = Math.floor(this.random.randomTo(this.active.length));
         const pos = this.active[randActiveIndex];
@@ -190,12 +201,12 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
     return this.r * (1 + 2 * Math.abs(Math.sin((pos.x + pos.y) * 0.01)));
   }
 
-  private drawStep(step: number = this.step, radius: number = this.r) {
+  private drawStep(step: number, radius: number = this.r) {
     this.drawHelper.clear(this.width, this.height);
 
     this.grid.forEach(circles => circles.forEach((circle) => {
         if (circle) {
-          this.drawHelper.drawCircle(circle, this.step);
+          this.drawHelper.drawCircle(circle, 0);
         }
       }
     ));
