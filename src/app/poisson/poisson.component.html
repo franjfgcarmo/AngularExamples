@@ -4,9 +4,11 @@
     <a-camera>
 
     <a-circle *ngFor="let circle of foundCircles$ | async; let i=index; trackBy: trackById"
+              [id]="'a-circle' + i"
               [attr.radius]="circle.r"
               [attr.position]="circle.pos.x + ' ' + -circle.pos.y + ' -300'"
-              [attr.color]="circle.getColor(step$ | async)">
+              changing-color>
+              <!--[attr.color]="circle.getColor(step$ | async)>"-->
     </a-circle>
     <a-sphere color="white"
               position="250 -250 -300">

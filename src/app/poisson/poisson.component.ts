@@ -5,7 +5,7 @@ import {
   ElementRef,
   OnDestroy,
   ViewChild,
-  OnInit, Inject
+  OnInit, Inject, ViewChildren, Query, QueryList
 } from '@angular/core';
 import {Vector} from '../shared/vector';
 import 'rxjs/add/observable/range';
@@ -27,7 +27,6 @@ import {DrawHelper} from '../shared/draw-helper';
 import {DRAW_HELPER} from '../shared/shared.module';
 import {Subject} from 'rxjs/Subject';
 import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
   selector: 'app-poisson',
