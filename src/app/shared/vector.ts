@@ -26,7 +26,11 @@ export class Vector {
     return this.unit().scalar(mag);
   }
 
-  add(vec: Vector): Vector {
+  add(x: number, y: number): Vector {
+    return new Vector(this.x + x, this.y + y);
+  }
+
+  addVec(vec: Vector): Vector {
     return new Vector(this.x + vec.x, this.y + vec.y);
   }
 

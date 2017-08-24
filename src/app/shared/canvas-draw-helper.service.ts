@@ -36,11 +36,9 @@ export class CanvasDrawHelperService implements DrawHelper {
   drawCircle(circle: Circle, step: number): DrawHelper {
     const offsetX = 0;
     const offsetY = 0;
-    const hue = 255 * Math.abs(Math.sin((step + circle.pos.x) * 0.03));
-    const sat = 255 * Math.abs(Math.cos(circle.r));
 
     return this
-      .setFillColor(`hsl(${hue},${sat}%,50%)`)
+      .setFillColor(circle.getColor(step))
       .drawPoint(circle.pos.x + offsetX, circle.pos.y + offsetY, circle.r);
   }
 

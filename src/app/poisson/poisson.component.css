@@ -1,8 +1,17 @@
 .poissonContainer {
-  width: 100%;
+  margin: 10px;
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
+  align-content: space-around;
 }
+
+a-scene {
+  flex: 0 1 500px;
+  height: 500px;
+}
+
 :host {
   display: flex;
+  height: 80vh;
 }

@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
 import {PoissonComponent} from './poisson.component';
 import {PoissonConfigService} from './poisson-config.service';
 import {SharedModule} from '../shared/shared.module';
@@ -15,7 +15,8 @@ import {FormsModule} from '@angular/forms';
     FormsModule
   ],
   exports: [PoissonComponent],
-  providers: [PoissonConfigService]
+  providers: [PoissonConfigService],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class PoissonModule {
 }

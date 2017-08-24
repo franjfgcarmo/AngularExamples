@@ -1,4 +1,27 @@
 <div class="poissonContainer">
-  <canvas (click)="addPoint($event)" [width]="width" [height]="height" #canvas></canvas>
+  <a-scene (click)="addPoint($event)" id="myScene" embedded>
+    <a-sky color="black"></a-sky>
+    <a-camera>
+    </a-camera>
+    <a-circle *ngFor="let circle of foundCircles$ | async; let i=index; trackBy: trackById"
+              [attr.radius]="circle.r"
+              [attr.position]="circle.pos.x + ' ' + -circle.pos.y + ' -300'"
+              [attr.color]="circle.getColor(step)">
+    </a-circle>
+    <a-sphere color="white"
+              position="250 -250 -300">
+    </a-sphere>
+    <a-sphere color="white"
+              position="-250 -250 -300">
+    </a-sphere>
+    <a-sphere color="white"
+              position="250 250 -300">
+    </a-sphere>
+    <a-sphere color="white"
+              position="-250 250 -300">
+    </a-sphere>
+
+  </a-scene>
+<!--  <canvas (click)="addPoint($event)" [width]="width" [height]="height" #canvas></canvas>-->
   <app-sim-controls (playChanged)="setPlay($event)" (onReset)="reset()"></app-sim-controls>
 </div>

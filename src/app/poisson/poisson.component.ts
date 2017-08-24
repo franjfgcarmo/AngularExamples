@@ -15,6 +15,7 @@ import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/toArray';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/shareReplay';
+import 'rxjs/add/operator/scan';
 
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/filter';
@@ -24,12 +25,14 @@ import {Circle} from '../shared/circle';
 import {Subscription} from 'rxjs/Subscription';
 import {DrawHelper} from '../shared/draw-helper';
 import {DRAW_HELPER} from '../shared/shared.module';
+import {Subject} from 'rxjs/Subject';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
   selector: 'app-poisson',
   templateUrl: './poisson.component.html',
   styleUrls: ['./poisson.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.Default
 })
 export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
 
@@ -38,10 +41,19 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
 
   @ViewChild('canvas') canvas: ElementRef;
 
+  width = 500;
+  height = 500;
+
+  foundCirclesSubject: Subject<Circle> = new Subject<Circle>();
+  foundCircles$: Observable<Circle[]> = this.foundCirclesSubject.asObservable()
+    .map((circle: Circle) => new Circle(circle.pos.add(-this.width / 2, -this.height / 2), circle.r))
+    .scan((pre: Circle[], current: Circle) => {
+      pre.push(current);
+      return pre;
+    }, []);
   grid: Circle[][] = [];
   active: Vector[] = [];
-  height: number;
-  width: number;
+
   cols: number;
   rows: number;
   step = 0;
@@ -56,8 +68,6 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.width = 500;
-    this.height = 500;
 
     this.subscriptions = (this.poissonConfig.iterationsPerFrame$.subscribe((iterations) => this.iterationsPerFrame = iterations))
       .add(this.poissonConfig.k$.subscribe((k) => this.k = k))
@@ -73,15 +83,17 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
   }
 
   ngAfterContentInit(): void {
-    this.setup();
-    setTimeout(() => this.paintLoop(), 1000);
+    setTimeout(() => {
+      this.setup();
+      this.paintLoop();
+    }, 0);
   }
 
   setup() {
-    const canvas: HTMLCanvasElement = this.canvas.nativeElement;
+    /*const canvas: HTMLCanvasElement = this.canvas.nativeElement;
 
-    const ctx = canvas.getContext('webgl');
-    this.drawHelper.initCtx(ctx);
+    const ctx = canvas.getContext('2d');
+    this.drawHelper.initCtx(ctx);*/
     this.grid = [];
     this.active = [];
 
@@ -91,8 +103,8 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
     }
     this.step = 0;
 
-    this.drawHelper.setFillColor('black');
-    this.drawHelper.fillRect(0, 0, this.width, this.height);
+    /*this.drawHelper.setFillColor('black');
+    this.drawHelper.fillRect(0, 0, this.width, this.height);*/
 
   }
 
@@ -100,7 +112,9 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
     const x = Math.floor(vec.x / this.w);
     const y = Math.floor(vec.y / this.w);
 
-    this.grid[x][y] = new Circle(vec, circleRadius);
+    const circle = new Circle(vec, circleRadius);
+    this.grid[x][y] = circle;
+    this.foundCirclesSubject.next(circle);
   }
 
   private getFromGrid(vec: Vector): Circle {
@@ -114,7 +128,7 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
   }
 
   paintLoop(): void {
-    this.drawStep(this.step);
+    // this.drawStep(this.step);
     if (this.play) {
       this.step++;
       for (let f = 0; f < this.iterationsPerFrame && this.active.length > 0; f++) {
@@ -123,29 +137,29 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
         let found = false;
         const radius = this.currentDistanceForPos(pos);
         for (let n = 0; n < this.k; n++) {
-          const sample = Vector.randomVec().setMag(this.random.random(radius, 2 * radius)).add(pos);
-          this.drawHelper
+          const sample = Vector.randomVec().setMag(this.random.random(radius, 2 * radius)).addVec(pos);
+          /*this.drawHelper
             .setFillColor('blue')
-            .drawVec(sample, radius * 0.2);
+            .drawVec(sample, radius * 0.2);*/
 
           const row = Math.floor(sample.x / this.w);
           const col = Math.floor(sample.y / this.w);
 
           if (col > -1 && row > -1 && col < this.cols && row < this.rows && !this.getFromGrid(sample)) {
 
-            this.drawHelper
+            /*this.drawHelper
               .setFillColor('yellow')
-              .drawVec(pos, radius * 0.2);
+              .drawVec(pos, radius * 0.2);*/
             const neighbours = this.getNeighbours(sample, radius);
             const ok = neighbours.every((neighbour: Circle) => {
-              this.drawHelper.setStrokeColor('white');
+              // this.drawHelper.setStrokeColor('white');
               if (neighbour) {
-                this.drawHelper
-                  .setLineWidth(0.5)
-                  .drawLine(sample, neighbour.pos)
-                  .setFillColor('green')
-                  .drawCircle(neighbour, this.step);
-
+                /*  this.drawHelper
+                    .setLineWidth(0.5)
+                    .drawLine(sample, neighbour.pos)
+                    .setFillColor('green')
+                    .drawCircle(neighbour, this.step);
+  */
                 const d = sample.fastDist(neighbour.pos);
                 const rQuad = radius * radius;
                 return d >= rQuad;

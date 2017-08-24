@@ -9,7 +9,7 @@ export const DRAW_HELPER = new InjectionToken<DrawHelper>('draw.helper');
 
 @NgModule({
   providers: [
-    {provide: DRAW_HELPER, useClass: CanvasDrawHelperServiceWebGl},
+    {provide: DRAW_HELPER, useClass: CanvasDrawHelperService},
     RandomService],
   exports: [CommonModule],
   declarations: []
