@@ -1,29 +1,43 @@
 <div class="poissonContainer">
-  <a-scene (click)="addPoint($event)" id="myScene" embedded>
-    <a-sky color="black"></a-sky>
-    <a-camera>
+  <app-canvas-view
+    [width]="width"
+    [height]="height"
+    [circles]="poissonCalc.foundCircles$ | async"
+    [actives]="poissonCalc.activeVectors$ | async"
+    (click)="addPoint($event)"
+    (onReadyToPaint)="calculate()"
+  >
 
-    <a-circle *ngFor="let circle of foundCircles$ | async; let i=index; trackBy: trackById"
-              [id]="'a-circle' + i"
-              [attr.radius]="circle.r"
-              [attr.position]="circle.pos.x + ' ' + -circle.pos.y + ' -300'"
-              changing-color>
-              <!--[attr.color]="circle.getColor(step$ | async)>"-->
-    </a-circle>
-    <a-sphere color="white"
-              position="250 -250 -300">
-    </a-sphere>
-    <a-sphere color="white"
-              position="-250 -250 -300">
-    </a-sphere>
-    <a-sphere color="white"
-              position="250 250 -300">
-    </a-sphere>
-    <a-sphere color="white"
-              position="-250 250 -300">
-    </a-sphere>
-    </a-camera>
-  </a-scene>
-<!--  <canvas (click)="addPoint($event)" [width]="width" [height]="height" #canvas></canvas>-->
+  </app-canvas-view>
+
+
   <app-sim-controls (playChanged)="setPlay($event)" (onReset)="reset()"></app-sim-controls>
+
+
+  <!-- <a-scene (click)="addPoint($event)" id="myScene" embedded>
+     <a-sky color="black"></a-sky>
+     <a-camera>
+
+     <a-circle *ngFor="let circle of foundCircles$ | async; let i=index; trackBy: trackById"
+               [id]="'a-circle' + i"
+               [attr.radius]="circle.r"
+               [attr.position]="circle.pos.x + ' ' + -circle.pos.y + ' -300'"
+               changing-color>
+               &lt;!&ndash;[attr.color]="circle.getColor(step$ | async)>"&ndash;&gt;
+     </a-circle>
+     <a-sphere color="white"
+               position="250 -250 -300">
+     </a-sphere>
+     <a-sphere color="white"
+               position="-250 -250 -300">
+     </a-sphere>
+     <a-sphere color="white"
+               position="250 250 -300">
+     </a-sphere>
+     <a-sphere color="white"
+               position="-250 250 -300">
+     </a-sphere>
+     </a-camera>
+   </a-scene>-->
+
 </div>

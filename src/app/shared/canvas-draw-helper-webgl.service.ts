@@ -1,11 +1,10 @@
 import {Injectable} from '@angular/core';
-import {Vector} from './vector';
-import {DrawHelper} from './draw-helper';
-import {Circle} from './circle';
+import {Vector} from '../poisson/shared/vector';
+import {Circle} from '../poisson/shared/circle';
 import init from './init-gl';
 
 @Injectable()
-export class CanvasDrawHelperServiceWebGl implements DrawHelper {
+export class WebGlDrawService{
 
 
   private gl: WebGLRenderingContext;
@@ -14,28 +13,28 @@ export class CanvasDrawHelperServiceWebGl implements DrawHelper {
   }
 
 
-  initCtx(webGl: WebGLRenderingContext): DrawHelper {
+  initCtx(webGl: WebGLRenderingContext): WebGlDrawService {
     this.gl = webGl;
     init(this.gl);
     return this;
   }
 
-  setFillColor(fillColor: string): DrawHelper {
+  setFillColor(fillColor: string): WebGlDrawService {
     // this.gl.fillStyle = fillColor;
     return this;
   }
 
-  setStrokeColor(strokeColor: string): DrawHelper {
+  setStrokeColor(strokeColor: string): WebGlDrawService {
     // this.gl.strokeStyle = strokeColor;
     return this;
   }
 
-  setLineWidth(lineWidth: number): DrawHelper {
+  setLineWidth(lineWidth: number): WebGlDrawService {
     // this.gl.lineWidth = lineWidth;
     return this;
   }
 
-  drawCircle(circle: Circle, step: number): DrawHelper {
+  drawCircle(circle: Circle, step: number): WebGlDrawService {
     const offsetX = 0;
     const offsetY = 0;
     const hue = 255 * Math.abs(Math.sin((step + circle.pos.x) * 0.03));
@@ -78,7 +77,7 @@ export class CanvasDrawHelperServiceWebGl implements DrawHelper {
     return this;
   }
 
-  clear(width: number, height: number): DrawHelper {
+  clear(width: number, height: number): WebGlDrawService {
     // Set clear color to black, fully opaque
     /*this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
     // Clear the color buffer with specified clear color
@@ -86,7 +85,7 @@ export class CanvasDrawHelperServiceWebGl implements DrawHelper {
     return this;
   }
 
-  fillRect(x: number, y: number, width: number, height: number): DrawHelper {
+  fillRect(x: number, y: number, width: number, height: number): WebGlDrawService {
     // this.gl.fillRect(x, y, width, height);
     return this;
   }

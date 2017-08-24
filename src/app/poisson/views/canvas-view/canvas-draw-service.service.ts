@@ -1,17 +1,14 @@
 import {Injectable} from '@angular/core';
-import {Vector} from './vector';
-import {DrawHelper} from './draw-helper';
-import {Circle} from './circle';
+import {Vector} from '../../shared/vector';
+import {Circle} from '../../shared/circle';
 
 @Injectable()
-export class CanvasDrawHelperService implements DrawHelper {
-
+export class CanvasDrawService {
 
   private ctx: CanvasRenderingContext2D;
 
   constructor() {
   }
-
 
   initCtx(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
@@ -33,7 +30,7 @@ export class CanvasDrawHelperService implements DrawHelper {
     return this;
   }
 
-  drawCircle(circle: Circle, step: number): DrawHelper {
+  drawCircle(circle: Circle, step: number): CanvasDrawService {
     const offsetX = 0;
     const offsetY = 0;
 

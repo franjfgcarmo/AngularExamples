@@ -1,21 +1,27 @@
 import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
+import {F5ViewComponent} from './views/f5-view/f5-view.component';
+import {AFrameViewComponent} from './views/a-frame-view/a-frame-view.component';
 import {PoissonComponent} from './poisson.component';
 import {PoissonConfigService} from './poisson-config.service';
 import {SharedModule} from '../shared/shared.module';
 import {SimControlsComponent} from './sim-controls/sim-controls.component';
 import {FormsModule} from '@angular/forms';
+import {PoissonCalcServiceService} from './poisson-calc-service.service';
+import {CanvasViewModule} from './views/canvas-view/canvas-view.module';
 
 @NgModule({
   declarations: [
     PoissonComponent,
     SimControlsComponent,
+    AFrameViewComponent, F5ViewComponent
   ],
   imports: [
     SharedModule,
-    FormsModule
+    FormsModule,
+    CanvasViewModule
   ],
   exports: [PoissonComponent],
-  providers: [PoissonConfigService],
+  providers: [PoissonConfigService, PoissonCalcServiceService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class PoissonModule {

@@ -1,15 +1,15 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { CanvasDrawHelperService } from './canvas-draw-helper.service';
+import { CanvasDrawService } from '../poisson/views/canvas-view/canvas-draw-service.service';
 
-describe('CanvasDrawHelperService', () => {
+describe('CanvasDrawService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [CanvasDrawHelperService]
+      providers: [CanvasDrawService]
     });
   });
 
-  it('should be created', inject([CanvasDrawHelperService], (service: CanvasDrawHelperService) => {
+  it('should be created', inject([CanvasDrawService], (service: CanvasDrawService) => {
     expect(service).toBeTruthy();
   }));
 
