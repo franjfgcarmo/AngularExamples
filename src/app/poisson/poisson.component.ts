@@ -3,7 +3,7 @@ import {Vector} from './shared/vector';
 import {Subscription} from 'rxjs/Subscription';
 import {Subject} from 'rxjs/Subject';
 import {Observable} from 'rxjs/Observable';
-import {PoissonCalcServiceService} from './poisson-calc-service.service';
+import {PoissonCalcService} from './poisson-calc.service';
 import 'rxjs/add/operator/scan';
 
 @Component({
@@ -12,35 +12,21 @@ import 'rxjs/add/operator/scan';
   styleUrls: ['./poisson.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
+export class PoissonComponent implements OnInit {
 
   width = 500;
   height = 500;
 
   play = false;
 
-  private subscriptions: Subscription;
-
-  constructor(public poissonCalc: PoissonCalcServiceService) {
+  constructor(public poissonCalc: PoissonCalcService) {
   }
 
   ngOnInit(): void {
-
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-  }
-
-  ngAfterContentInit(): void {
-    setTimeout(() => {
-      this.setup();
-    }, 0);
+    this.setup();
   }
 
   setup() {
-    /*this.drawHelper.setFillColor('black');
-    this.drawHelper.fillRect(0, 0, this.width, this.height);*/
     this.poissonCalc.setup(this.width, this.height);
   }
 
@@ -49,30 +35,12 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
   }
 
   calculate(): void {
-     if (this.play) {
+    if (this.play) {
       this.poissonCalc.calculate();
     }
   }
 
-  private drawStep() {
-    /*this.drawHelper.clear(this.width, this.height);
-
-    this.grid.forEach(circles => circles.forEach((circle) => {
-        if (circle) {
-          this.drawHelper.drawCircle(circle, 0);
-       }
-      }
-    ));
-
-    this.drawHelper.setFillColor('red');
-    this.active.forEach((vec) => {
-      this.drawHelper.drawVec(vec, this.r * 0.2);
-    });*/
-  }
-
-
-  addPoint($event: MouseEvent) {
-    const vector = new Vector($event.offsetX, $event.offsetY);
+  addPoint(vector: Vector) {
     this.poissonCalc.addPointForCalculation(vector);
   }
 

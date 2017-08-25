@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Vector} from '../../shared/vector';
 import {Circle} from '../../shared/circle';
+import {Line} from '../../shared/line';
 
 @Injectable()
 export class CanvasDrawService {
@@ -45,6 +46,10 @@ export class CanvasDrawService {
 
   drawPoint(x: number, y: number, radius: number) {
     return this.drawArc(x, y, radius, 0, 2 * Math.PI, true);
+  }
+
+  drawLineObj(line: Line) {
+    return this.drawLine(line.from, line.to);
   }
 
   drawLine(from: Vector, to: Vector) {

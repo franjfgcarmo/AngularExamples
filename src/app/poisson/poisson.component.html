@@ -4,7 +4,8 @@
     [height]="height"
     [circles]="poissonCalc.foundCircles$ | async"
     [actives]="poissonCalc.activeVectors$ | async"
-    (click)="addPoint($event)"
+    [lines]="poissonCalc.lines$ | async"
+    (onAddObject)="addPoint($event)"
     (onReadyToPaint)="calculate()"
   >
 

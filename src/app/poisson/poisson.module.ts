@@ -4,9 +4,10 @@ import {AFrameViewComponent} from './views/a-frame-view/a-frame-view.component';
 import {PoissonComponent} from './poisson.component';
 import {PoissonConfigService} from './poisson-config.service';
 import {SharedModule} from '../shared/shared.module';
+import {SharedModule as PoissonShared} from './shared/shared.module';
 import {SimControlsComponent} from './sim-controls/sim-controls.component';
 import {FormsModule} from '@angular/forms';
-import {PoissonCalcServiceService} from './poisson-calc-service.service';
+import {PoissonCalcService} from './poisson-calc.service';
 import {CanvasViewModule} from './views/canvas-view/canvas-view.module';
 
 @NgModule({
@@ -18,10 +19,11 @@ import {CanvasViewModule} from './views/canvas-view/canvas-view.module';
   imports: [
     SharedModule,
     FormsModule,
-    CanvasViewModule
+    CanvasViewModule,
+    PoissonShared
   ],
   exports: [PoissonComponent],
-  providers: [PoissonConfigService, PoissonCalcServiceService],
+  providers: [PoissonConfigService, PoissonCalcService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class PoissonModule {

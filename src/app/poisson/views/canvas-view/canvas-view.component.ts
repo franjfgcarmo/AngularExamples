@@ -16,6 +16,7 @@ import {Scheduler} from 'rxjs/Rx';
 import {Subject} from 'rxjs/Subject';
 import {Observable} from 'rxjs/Observable';
 import {Vector} from '../../shared/vector';
+import {Line} from '../../shared/line';
 
 
 @Component({
@@ -31,8 +32,9 @@ export class CanvasViewComponent implements OnInit, AfterContentInit {
   @Input() width: number;
   @Input() height: number;
   @Input() circles: Circle[];
-  @Input() circleColors: string[];
   @Input() actives: Vector[];
+  @Input() lines: Line[];
+  @Output() onAddObject = new EventEmitter<Vector>();
   @Output() onReadyToPaint = new EventEmitter<number>();
 
   private draw$: Observable<number>;
@@ -51,15 +53,33 @@ export class CanvasViewComponent implements OnInit, AfterContentInit {
     this.draw$.subscribe(this.draw.bind(this));
   }
 
+  public onClick($event: MouseEvent) {
+    this.onAddObject.emit(new Vector($event.offsetX, $event.offsetY));
+  }
+
+  private isInsideDrawArea(circle) {
+    return circle.pos.x <= this.width && circle.pos.y <= this.height && circle.pos.x >= 0 && circle.pos.y >= 0;
+  }
+
   private draw(step: number) {
     this.canvasDrawService.setFillColor('black');
     this.canvasDrawService.fillRect(0, 0, this.width, this.height);
     if (this.circles) {
+      const filteredCircles = this.circles.filter(this.isInsideDrawArea.bind(this));
+      if (filteredCircles.length < this.circles.length) {
+        console.error('Some circles are out of draw area.',
+          this.circles.filter((circle) => !this.isInsideDrawArea(circle))
+        );
+      }
       this.circles.forEach((circle) => this.canvasDrawService.drawCircle(circle, step));
     }
     if (this.actives) {
       this.canvasDrawService.setFillColor('red');
       this.actives.forEach((active) => this.canvasDrawService.drawVec(active, 1));
+    }
+    if (this.lines) {
+      this.canvasDrawService.setStrokeColor('white');
+      this.lines.forEach((line) => this.canvasDrawService.drawLineObj(line));
     }
     this.onReadyToPaint.emit(step);
   }

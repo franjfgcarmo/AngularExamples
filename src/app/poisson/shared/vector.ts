@@ -3,13 +3,6 @@ export class Vector {
   constructor(public x: number, public y: number) {
   }
 
-  static randomVec() {
-    const a = Math.random() * 2 * Math.PI;
-    const offsetX = Math.cos(a);
-    const offsetY = Math.sin(a);
-    return new Vector(offsetX, offsetY).unit();
-  }
-
   mag() {
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
@@ -24,6 +17,10 @@ export class Vector {
 
   setMag(mag: number): Vector {
     return this.unit().scalar(mag);
+  }
+
+  dot(vec: Vector): number {
+    return vec.x * this.x + vec.y * this.y;
   }
 
   add(x: number, y: number): Vector {
@@ -43,5 +40,5 @@ export class Vector {
   }
 }
 
-export const NullVec = new Vector(-1, -1);
+
 
