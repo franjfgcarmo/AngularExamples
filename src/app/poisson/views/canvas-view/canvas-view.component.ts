@@ -62,6 +62,7 @@ export class CanvasViewComponent implements OnInit, AfterContentInit {
   }
 
   private draw(step: number) {
+
     this.canvasDrawService.setFillColor('black');
     this.canvasDrawService.fillRect(0, 0, this.width, this.height);
     if (this.circles) {

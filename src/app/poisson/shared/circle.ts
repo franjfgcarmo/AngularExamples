@@ -5,14 +5,19 @@ export class Circle {
   constructor(public pos: Vector, public r: number) {
   }
 
-  getColor(step: number): string {
+  getColor(step: number): { h: number, s: number, l: number } {
     const offsetX = 0;
     const offsetY = 0;
-    const hue = 360 * Math.abs(Math.sin((step + this.pos.x) * 0.03));
-    const sat = Math.abs(Math.cos(this.r));
-    const rgb = this.hslToRgb(hue, sat, 0.5);
-    const s = this.toRGBtoHex(rgb);
-    return s;
+    const h = 365 * Math.abs(Math.sin((step + this.pos.x) * 0.03));
+    const s = 100 * Math.abs(Math.cos(this.r));
+    const l = 50;
+    return {h, s, l};
+  }
+
+  getColorString(step: number): string {
+    const {h, s, l} = this.getColor(step);
+    const rgb = this.hslToRgb(h, s, l);
+    return this.toRGBtoHex(rgb);
   }
 
   toRGBtoHex({r, g, b}: { r: number, g: number, b: number }) {
@@ -23,7 +28,6 @@ export class Circle {
     const result = Math.floor(val % 255).toString(16);
     return result.length > 1 ? result : '0' + result;
   }
-
 
 
   private hslToRgb(hue, sat, light) {

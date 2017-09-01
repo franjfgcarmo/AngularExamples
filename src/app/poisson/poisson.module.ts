@@ -29,7 +29,7 @@ import {P5ViewModule} from './views/p5-view/p5-view.module';
 })
 export class PoissonModule {
   constructor() {
-    AFRAME.registerComponent('changing-color', {
+    /*AFRAME.registerComponent('changing-color', {
       tick: function (time, timeDelta) {
 
         function toHex(val: number): string {
@@ -84,6 +84,6 @@ export class PoissonModule {
       },
 
 
-    });
+    });*/
   }
 }

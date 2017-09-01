@@ -13,7 +13,7 @@
     [height]="height"
     [circles]="poissonCalc.foundCircles$ | async"
     [actives]="poissonCalc.activeVectors$ | async"
-    (click)="addPoint($event)"
+    (onAddObject)="addPoint($event)"
     (onReadyToPaint)="calculate()"
   >
   </app-p5-view>

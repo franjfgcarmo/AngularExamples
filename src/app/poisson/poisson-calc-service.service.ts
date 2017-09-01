@@ -6,6 +6,7 @@ import {Observable, Subscribable} from 'rxjs/Observable';
 import {Vector} from './shared/vector';
 import {RandomService} from '../shared/random.service';
 import {Subscription} from 'rxjs/Subscription';
+import {ShapeFactoryService} from './shared/shape-factory.service';
 
 @Injectable()
 export class PoissonCalcServiceService {
@@ -31,11 +32,11 @@ export class PoissonCalcServiceService {
   private iterationsPerFrame: number;
   private subscriptions: Subscription;
 
-  constructor(private poissonConfig: PoissonConfigService, private random: RandomService) {
+  constructor(private poissonConfig: PoissonConfigService, private random: RandomService, private shapeFactory: ShapeFactoryService) {
     this.subscriptions = (this.poissonConfig.iterationsPerFrame$.subscribe((iterations) => this.iterationsPerFrame = iterations))
       .add(this.poissonConfig.k$.subscribe((k) => this.k = k))
-      .add(this.poissonConfig.r$.subscribe((r) => this.r = r))
-      .add(this.poissonConfig.w$.subscribe((w) => this.w = w));
+      .add(this.poissonConfig.r$.subscribe((r) => this.r = r));
+    this.w = this.poissonConfig.w;
   }
 
   public setup(width: number, height: number) {
@@ -57,7 +58,8 @@ export class PoissonCalcServiceService {
     this.foundCirclesSubject = new Subject<Circle>();
     this.foundCircles$ = this.foundCirclesSubject.asObservable()
       .scan((pre: Circle[], current: Circle) => {
-        return pre.concat(current);
+        pre.push(current);
+        return pre;
       }, []);
 
     if (this.activesSubject) {
@@ -74,7 +76,7 @@ export class PoissonCalcServiceService {
       let found = false;
       const radius = this.currentDistanceForPos(pos);
       for (let n = 0; n < this.k; n++) {
-        const sample = Vector.randomVec().setMag(this.random.random(radius, 2 * radius)).addVec(pos);
+        const sample = this.shapeFactory.randomVector().setMag(this.random.random(radius, 2 * radius)).addVec(pos);
         /*this.drawHelper
           .setFillColor('blue')
           .drawVec(sample, radius * 0.2);*/
