@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 
-import { CanvasDrawService } from '../poisson/views/canvas-view/canvas-draw-service.service';
+import { CanvasDrawService } from '../poisson/views/canvas-view/canvas-draw.service';
 
 describe('CanvasDrawService', () => {
   beforeEach(() => {

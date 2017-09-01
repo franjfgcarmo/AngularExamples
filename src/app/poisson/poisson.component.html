@@ -1,5 +1,4 @@
-<div class="poissonContainer">
-  <app-canvas-view
+ <!-- <app-canvas-view
     [width]="width"
     [height]="height"
     [circles]="poissonCalc.foundCircles$ | async"
@@ -7,8 +6,16 @@
     (click)="addPoint($event)"
     (onReadyToPaint)="calculate()"
   >
-
-  </app-canvas-view>
+  </app-canvas-view>-->
+  <app-p5-view
+    [width]="width"
+    [height]="height"
+    [circles]="poissonCalc.foundCircles$ | async"
+    [actives]="poissonCalc.activeVectors$ | async"
+    (click)="addPoint($event)"
+    (onReadyToPaint)="calculate()"
+  >
+  </app-p5-view>
 
 
   <app-sim-controls (playChanged)="setPlay($event)" (onReset)="reset()"></app-sim-controls>
@@ -40,4 +47,3 @@
      </a-camera>
    </a-scene>-->
 
-</div>

@@ -14,8 +14,8 @@ import 'rxjs/add/operator/scan';
 })
 export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
 
-  width = 500;
-  height = 500;
+  width = 600;
+  height = 600;
 
   play = false;
 
@@ -53,23 +53,6 @@ export class PoissonComponent implements AfterContentInit, OnInit, OnDestroy {
       this.poissonCalc.calculate();
     }
   }
-
-  private drawStep() {
-    /*this.drawHelper.clear(this.width, this.height);
-
-    this.grid.forEach(circles => circles.forEach((circle) => {
-        if (circle) {
-          this.drawHelper.drawCircle(circle, 0);
-       }
-      }
-    ));
-
-    this.drawHelper.setFillColor('red');
-    this.active.forEach((vec) => {
-      this.drawHelper.drawVec(vec, this.r * 0.2);
-    });*/
-  }
-
 
   addPoint($event: MouseEvent) {
     const vector = new Vector($event.offsetX, $event.offsetY);

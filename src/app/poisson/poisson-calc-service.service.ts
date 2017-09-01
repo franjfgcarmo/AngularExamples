@@ -57,8 +57,7 @@ export class PoissonCalcServiceService {
     this.foundCirclesSubject = new Subject<Circle>();
     this.foundCircles$ = this.foundCirclesSubject.asObservable()
       .scan((pre: Circle[], current: Circle) => {
-        pre.push(current);
-        return pre;
+        return pre.concat(current);
       }, []);
 
     if (this.activesSubject) {

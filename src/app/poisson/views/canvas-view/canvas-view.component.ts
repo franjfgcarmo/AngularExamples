@@ -10,7 +10,7 @@ import {
   ViewChild
 } from '@angular/core';
 import {Circle} from '../../shared/circle';
-import {CanvasDrawService} from './canvas-draw-service.service';
+import {CanvasDrawService} from './canvas-draw.service';
 import {IntervalObservable} from 'rxjs/observable/IntervalObservable';
 import {Scheduler} from 'rxjs/Rx';
 import {Subject} from 'rxjs/Subject';
