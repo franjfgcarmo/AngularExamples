@@ -9,6 +9,7 @@ import {FormsModule} from '@angular/forms';
 import {PoissonCalcService} from './poisson-calc.service';
 import {CanvasViewModule} from './views/canvas-view/canvas-view.module';
 import {P5ViewModule} from './views/p5-view/p5-view.module';
+import {poissonRoutes} from './poisson-routing.module';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import {P5ViewModule} from './views/p5-view/p5-view.module';
     AFrameViewComponent
   ],
   imports: [
+    poissonRoutes,
     SharedModule,
     FormsModule,
     CanvasViewModule,

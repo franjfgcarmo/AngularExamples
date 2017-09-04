@@ -134,20 +134,20 @@ export class PoissonCalcService {
 
   private onNextCalculation({active, randomActiveIndex}) {
     let found = false;
-    const radius = this.currentDistanceForPos(active);
+    const currentDistance = this.currentDistanceForPos(active);
     for (let n = 0; n < this.k; n++) {
-      const sample = this.shapeFactory.randomVector().setMag(this.random.random(radius, 2 * radius)).addVec(active);
+      const sample = this.shapeFactory.randomVector().setMag(this.random.random(currentDistance, 2 * currentDistance)).addVec(active);
 
       /*this.drawHelper
         .setFillColor('blue')
-        .drawVec(sample, radius * 0.2);*/
+        .drawVec(sample, currentDistance * 0.2);*/
 
       const row = Math.floor(sample.x / this.w);
       const col = Math.floor(sample.y / this.w);
 
       if (col > -1 && row > -1 && col < this.cols && row < this.rows && !this.getFromGrid(sample)) {
 
-        const neighbours = this.getNeighbours(sample, radius);
+        const neighbours: Circle[] = this.getNeighbours(sample, currentDistance);
         const ok = neighbours.every((neighbour: Circle) => {
           // this.drawHelper.setStrokeColor('white');
           if (neighbour) {
@@ -156,9 +156,10 @@ export class PoissonCalcService {
                 .drawCircle(neighbour, this.step);
             */
             const sampleRadius = this.currentCircleRadius(sample);
-            const d = sample.fastDist(neighbour.pos) - (sampleRadius + neighbour.r);
-            const rQuad = radius * radius;
-            return d >= rQuad;
+            const dQuad = sample.fastDist(neighbour.pos);
+            const distanceQuad = currentDistance * currentDistance;
+            const radiQuad = sampleRadius * sampleRadius + neighbour.r * neighbour.r;
+            return dQuad - radiQuad >= distanceQuad;
           }
         });
 

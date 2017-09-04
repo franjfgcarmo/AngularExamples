@@ -7,6 +7,10 @@ export class Vector {
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
 
+  magFast() {
+    return this.x * this.x + this.y * this.y;
+  }
+
   unit(): Vector {
     return this.scalar(1 / this.mag());
   }

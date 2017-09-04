@@ -1,6 +1,11 @@
 import {
-  AfterContentInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output,
-  SimpleChanges,
+  AfterContentInit,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  Output,
   ViewChild
 } from '@angular/core';
 import {Circle} from '../../shared/circle';
@@ -24,9 +29,11 @@ export class P5ViewComponent implements AfterContentInit {
   @Input() actives: Vector[];
   @Output() onAddObject = new EventEmitter<Vector>();
   @Output() onReadyToPaint = new EventEmitter<number>();
+  public frameRate = 0;
 
   private scetch: any;
-  public frameRate = 0;
+  private time = 1;
+  private maxR = 2;
 
   constructor() {
   }
@@ -41,24 +48,66 @@ export class P5ViewComponent implements AfterContentInit {
 
 
   initP5(p: any) {
+    let wood;
+
+    p.preload = () => {
+      wood = p.loadImage('/assets/wood.jpeg');
+    };
+
     p.setup = () => {
       p.createCanvas(this.width, this.height, 'webgl');
-      p.frameRate(30);
+      p.frameRate(60);
 
     };
 
     p.draw = () => {
-      p.colorMode('hsl');
-      if (p.frameCount % 15 === 0) {
-        this.frameRate = p.frameRate();
+
+      const frameCount = p.frameCount;
+
+      const frameRate = p.frameRate();
+
+      if (frameRate) {
+        if (frameCount % 30 === 0) {
+          this.frameRate = frameRate;
+        }
+
+        const deltaT = Math.floor(1000.0 / frameRate);
+        this.time += deltaT;
       }
-      p.camera(0, 0, -10);
+      p.colorMode('hsl');
+      p.ambientLight(0, 0, 80);
+
+      const locY = (p.mouseY / p.height - 0.5) * (-2);
+      const locX = (p.mouseX / p.width - 0.5) * 2;
+
+      const hueDir = p.noise(this.time * 0.001 + 5000) * 360;
+      const saturationDir = p.noise(this.time * 0.001 + 30000) * 100;
+      p.directionalLight(hueDir, saturationDir, 50, locX, locY, 0.25);
+
+
+      p.camera(0, 0, 0);
+      p.orbitControl();
+
       p.background(0);
-      if (this.circles) {
+
+
+      p.push();
+      const position = p.createVector(p.mouseX - p.width / 2, p.mouseY - p.height / 2);
+      position.setMag(500);
+      p.translate(position.x, position.y, 30);
+      p.fill(hueDir, saturationDir, 50);
+      p.sphere(50);
+      p.pop();
+
+      this.drawAreaFrame(p);
+
+      if (this.circles && this.circles.length) {
         p.push();
         p.translate(-p.width / 2, -p.height / 2);
         this.circles.forEach(circle => {
-          this.drawCircle(circle, p.frameCount, p);
+
+          p.texture(wood);
+          this.drawCircle(circle, this.time, p);
         });
         p.pop();
       }
@@ -66,12 +115,52 @@ export class P5ViewComponent implements AfterContentInit {
     };
   }
 
+  private drawAreaFrame(p: any) {
+// left frame line
+
+    const offset = 10;
+    const widthHalf = p.width / 2;
+    const cylinderWidth = 0.5;
+    p.push();
+
+    p.translate(-widthHalf - offset, 0, 10);
+    p.cylinder(cylinderWidth, p.height + 2 * offset);
+    p.pop();
+
+    // right frame line
+    p.push();
+    p.translate(widthHalf + offset, 0, 10);
+    p.cylinder(cylinderWidth, p.height + 2 * offset);
+    p.pop();
+
+    // top frame line
+    p.push();
+    const hHalf = p.height / 2;
+    p.translate(0, -hHalf - offset, 10);
+    p.rotateZ(p.PI / 2);
+    p.cylinder(cylinderWidth, p.width + 2 * offset);
+    p.pop();
+
+    // buttom frame line
+    p.push();
+    p.translate(0, hHalf + 10, 10);
+    p.rotateZ(p.PI / 2);
+    p.cylinder(cylinderWidth, p.width + 2 * offset);
+    p.pop();
+  }
+
   drawCircle(circle: Circle, step: number, p: p5): void {
     p.push();
-    const {h, s, l} = circle.getColor(p.frameCount);
-    p.fill(h, s, l);
+// const {h, s, l} = circle.getColor(step);
+// p.colorMode('hsl');
+// p.specularMaterial(h, s, l, 0.1);
     p.translate(Math.floor(circle.pos.x), Math.floor(circle.pos.y), 10);
-    p.sphere(Math.max(Math.floor(circle.r), 1));
+    p.rotate(circle.pos.magFast(), p.createVector(circle.pos.x, circle.pos.y, 0));
+
+    this.maxR = Math.max(this.maxR, circle.r);
+    const detailX = p.floor(p.map(circle.r, 1, this.maxR, 4, 24));
+    const detailY = p.floor(p.map(circle.r, 1, this.maxR, 4, 16));
+    p.sphere(circle.r, detailX, detailY);
     p.pop();
   }
 }

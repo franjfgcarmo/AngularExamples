@@ -36,7 +36,7 @@ export class CanvasDrawService {
     const offsetY = 0;
 
     return this
-      .setFillColor(circle.getColor(step))
+      .setFillColor(circle.getColorString(step))
       .drawPoint(circle.pos.x + offsetX, circle.pos.y + offsetY, circle.r);
   }
 
