@@ -12,28 +12,12 @@ export class CalcServiceFactory {
 }
 
 export class Cell {
+
+
   constructor(public a: number, public b: number) {
   }
 
-  calcNextCell(deltaT: number = 1, dA: number, dB: number, f: number, k: number, laplaceA: number, laplaceB: number): Cell {
-    const a = this.a;
-    const b = this.b;
-    const abb = a * b * b;
-    const nextA = a +
-      ((dA * laplaceA) -
-        abb +
-        (f * (1 - a))) * deltaT;
-    const nextB = b +
-      ((dB * laplaceB) +
-        abb -
-        ((k + f) * b)) * deltaT;
-    return new Cell(this.constrain(nextA), this.constrain(nextB));
-  }
 
-
-  private constrain(val) {
-    return Math.min(1.0, Math.max(0.0, val));
-  }
 }
 
 export class CalcService {
@@ -56,32 +40,31 @@ export class CalcService {
       this.grid[x] = [];
       this.next[x] = [];
       for (let y = 0; y < this.height; y++) {
-        this.grid[x][y] = new Cell(1, 0);
-        this.next[x][y] = new Cell(1, 0);
+        this.grid[x][y] = {a: 1, b: 0};
+        this.next[x][y] = {a: 1, b: 0};
       }
     }
 
-    for (let i = 100 - 5; i < 100 + 5; i++) {
-      for (let j = 100 - 5; j < 10 + 5; j++) {
-        this.grid[i][j] = new Cell(1, 1);
-      }
-    }
+    this.addChemical(Math.floor(this.width / 2), Math.floor(this.height / 2));
     this.calcNext(1);
   }
 
   calcNext(deltaT: number): void {
-    for (let x = 1; x < this.grid.length - 1; x++) {
+    for (let x = 0; x < this.grid.length; x++) {
       const col = this.grid[x];
-      for (let y = 1; y < col.length - 1; y++) {
+      for (let y = 0; y < col.length; y++) {
+        const laplace = this.laplace(x, y);
         const nextCell =
-          col[y].calcNextCell(
+          this.calcNextCell(
+            col[y].a,
+            col[y].b,
             deltaT,
             this.diffRateA,
             this.diffRateB,
             this.feedRate,
             this.killRate,
-            this.laplaceA(x, y),
-            this.laplaceB(x, y));
+            laplace.sumA,
+            laplace.sumB);
         this.next[x][y] = nextCell;
       }
     }
@@ -97,41 +80,82 @@ export class CalcService {
         const wrappedX = i < 0 ? this.width + i : i % this.width;
         const wrappedY = j < 0 ? this.height + j : j % this.height;
         const cell = this.grid[wrappedX][wrappedY];
-        this.grid[wrappedX][wrappedY] = new Cell(cell.a, 1);
+        this.grid[wrappedX][wrappedY] = {a: 0, b: 1};
       }
     }
   }
 
-  laplaceA(x: number, y: number) {
+  calcNextCell(a: number,
+               b: number,
+               deltaT: number = 1,
+               dA: number,
+               dB: number,
+               f: number,
+               k: number,
+               laplaceA: number,
+               laplaceB: number): { a: number, b: number } {
+    const abb = a * b * b;
+    const nextA = a +
+      ((dA * laplaceA) -
+        abb +
+        (f * (1 - a))) * deltaT;
+    const nextB = b +
+      ((dB * laplaceB) +
+        abb -
+        ((k + f) * b)) * deltaT;
+    return {a: this.constrain(nextA), b: this.constrain(nextB)};
+  }
+
+  laplace(x: number, y: number) {
     let sumA = 0.0;
-    sumA += this.grid[x][y].a * -1.0; // center weight -1
-    sumA += this.grid[x - 1][y].a * 0.2; // diagonal weight 0.2
-    sumA += this.grid[x + 1][y].a * 0.2; // diagonal weight 0.2
-    sumA += this.grid[x][y + 1].a * 0.2; // diagonal weight 0.2
-    sumA += this.grid[x][y - 1].a * 0.2; // diagonal weight 0.2
-    sumA += this.grid[x - 1][y - 1].a * 0.05; // center weight 0.05
-    sumA += this.grid[x - 1][y + 1].a * 0.05; // center weight 0.05
-    sumA += this.grid[x + 1][y - 1].a * 0.05; // center weight 0.05
-    sumA += this.grid[x + 1][y + 1].a * 0.05; // center weight 0.05
-    return sumA;
+    let sumB = 0.0;
+
+    const wX = (i) => i < 0 ? this.width + i : i % this.width;
+    const wY = (j) => j < 0 ? this.height + j : j % this.height;
+    const add = (i, j, weight) => {
+      const cell = this.grid[i][j];
+      sumA += cell.a * weight;
+      sumB += cell.b * weight;
+    };
+    add(x, y, -1.0); // center weight -1
+    add(wX(x - 1), y, 0.2); // diagonal weight 0.2
+    add(wX(x + 1), y, 0.2); // diagonal weight 0.2
+    add(x, wY(y + 1), 0.2); // diagonal weight 0.2
+    add(x, wY(y - 1), 0.2); // diagonal weight 0.2
+    add(wX(x - 1), wY(y - 1), 0.05); // center weight 0.05
+    add(wX(x - 1), wY(y + 1), 0.05); // center weight 0.05
+    add(wX(x + 1), wY(y - 1), 0.05); // center weight 0.05
+    add(wX(x + 1), wY(y + 1), 0.05); // center weight 0.05
+    return {sumA, sumB};
+
+
   }
 
   laplaceB(x: number, y: number) {
-    let sumB = 0.0;
-    sumB += this.grid[x][y].b * -1.0; // center weight -1
-    sumB += this.grid[x - 1][y].b * 0.2; // diagonal weight 0.2
-    sumB += this.grid[x + 1][y].b * 0.2; // diagonal weight 0.2
-    sumB += this.grid[x][y + 1].b * 0.2; // diagonal weight 0.2
-    sumB += this.grid[x][y - 1].b * 0.2; // diagonal weight 0.2
-    sumB += this.grid[x - 1][y - 1].b * 0.05; // center weight 0.05
-    sumB += this.grid[x - 1][y + 1].b * 0.05; // center weight 0.05
-    sumB += this.grid[x + 1][y - 1].b * 0.05; // center weight 0.05
-    sumB += this.grid[x + 1][y + 1].b * 0.05; // center weight 0.05
-    return sumB;
+    let sum = 0;
+
+    const wX = (i) => i < 0 ? this.width + i : i % this.width;
+    const wY = (j) => j < 0 ? this.height + j : j % this.height;
+
+    sum += this.grid[x][y].b * -1.0; // center weight -1
+    sum += this.grid[wX(x - 1)][y].b * 0.2; // diagonal weight 0.2
+    sum += this.grid[wX(x + 1)][y].b * 0.2; // diagonal weight 0.2
+    sum += this.grid[x][wY(y + 1)].b * 0.2; // diagonal weight 0.2
+    sum += this.grid[x][wY(y - 1)].b * 0.2; // diagonal weight 0.2
+    sum += this.grid[wX(x - 1)][wY(y - 1)].b * 0.05; // center weight 0.05
+    sum += this.grid[wX(x - 1)][wY(y + 1)].b * 0.05; // center weight 0.05
+    sum += this.grid[wX(x + 1)][wY(y - 1)].b * 0.05; // center weight 0.05
+    sum += this.grid[wX(x + 1)][wY(y + 1)].b * 0.05; // center weight 0.05
+    return sum;
   }
 
   reset() {
     this.init();
   }
+
+  constrain(val) {
+    return Math.min(1.0, Math.max(0.0, val));
+  }
+
 
 }

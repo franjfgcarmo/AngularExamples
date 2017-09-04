@@ -37,7 +37,7 @@ export class Vector {
 
   fastDist(vec: Vector) {
     return Math.abs(Math.pow(this.x - vec.x, 2) + Math.pow(this.y - vec.y, 2));
-  }
+  }ng
 
   dist(vec: Vector) {
     return Math.sqrt(this.fastDist(vec));

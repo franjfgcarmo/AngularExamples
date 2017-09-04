@@ -11,13 +11,13 @@ import {
   ViewChild
 } from '@angular/core';
 import * as p5 from 'p5';
-import {CalcService, CalcServiceFactory, Cell} from '../calculation.service';
+import {CalcService} from '../calculation.service';
 
 @Component({
   selector: 'app-p5-view',
   templateUrl: './p5-view.component.html',
   styleUrls: ['./p5-view.component.css'],
-  changeDetection: ChangeDetectionStrategy.Default
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class P5ViewComponent implements AfterContentInit, OnChanges {
 
@@ -28,7 +28,7 @@ export class P5ViewComponent implements AfterContentInit, OnChanges {
   @Input() calcService: CalcService;
   @Input() run = false;
   private scetch: any;
-  @Output() calcNextValue: EventEmitter<number> = new EventEmitter<number>();
+  @Output() afterFrameDrawn: EventEmitter<number> = new EventEmitter<number>();
   @Output() mousePressed: EventEmitter<{ x: number, y: number }> = new EventEmitter();
   private frameRate = 1.0;
 
@@ -50,35 +50,39 @@ export class P5ViewComponent implements AfterContentInit, OnChanges {
 
     p.draw = () => {
       p.background(51);
-      if (this.getGrid()) {
+      const grid = this.getGrid();
+      if (grid) {
         p.loadPixels();
-        for (let x = 0; x < this.getGrid().length; x++) {
-          const column = this.getGrid()[x];
+        for (let x = 0; x < grid.length; x++) {
+          const column = grid[x];
           for (let y = 0; y < column.length; y++) {
             const pix = (x + y * p.width) * 4;
             const a = column[y].a;
             const b = column[y].b;
-            let c = p.floor((a - b) * 255);
-            c = p.constrain(c, 0, 255);
-            p.pixels[pix + 0] = c;
-            p.pixels[pix + 1] = c;
-            p.pixels[pix + 2] = c;
+            const r = p.constrain(p.floor((a - b) * 255), 0, 255);
+            // const g = p.constrain(p.floor((b - a) * 255), 0, 255);
+            p.pixels[pix + 0] = r;
+            p.pixels[pix + 1] = r;
+            p.pixels[pix + 2] = r;
             p.pixels[pix + 3] = 255;
           }
         }
         p.updatePixels();
       }
 
-      this.frameRate = this.frameRate * 0.95 + p.frameRate() * 0.05;
-      p.fill('white');
-      p.text('fps: ' + this.frameRate, 10, 10);
+      const frameRate = p.frameRate();
+      this.frameRate = this.frameRate * 0.95 + frameRate * 0.05;
+      p.fill('green');
+      p.text('fps: ' + p.floor(this.frameRate), 10, 10);
       if (this.run) {
-        this.calcService.calcNext(1);
-        this.calcNextValue.emit(1);
+        for (let i = 0; i < 1; i++) {
+          this.calcService.calcNext(1.0);
+          this.afterFrameDrawn.emit(1);
+        }
       }
     };
 
-    p.mouseClicked = () => {
+    p.mouseDragged = () => {
       const x = p.floor(p.mouseX);
       const y = p.floor(p.mouseY);
       if (x > -1 && x < this.width && y > -1 && y < this.height) {
@@ -89,7 +93,7 @@ export class P5ViewComponent implements AfterContentInit, OnChanges {
   }
 
   private getGrid() {
-    return this.calcService.next;
+    return this.calcService.grid;
   }
 }
 

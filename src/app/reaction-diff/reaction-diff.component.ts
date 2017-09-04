@@ -5,12 +5,12 @@ import {CalcService, CalcServiceFactory, Cell} from './calculation.service';
   selector: 'app-reaction-diff',
   templateUrl: './reaction-diff.component.html',
   styleUrls: ['./reaction-diff.component.css'],
-  changeDetection: ChangeDetectionStrategy.Default
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReactionDiffComponent {
   public calcService: CalcService;
-  public width = 170;
-  public height = 170;
+  public width = 200;
+  public height = 200;
   public start = false;
   public diffRateA;
   public diffRateB;
@@ -27,13 +27,12 @@ export class ReactionDiffComponent {
     this.grid = this.calcService.grid;
   }
 
-  public calcNext(deltaTime: number) {
+  public updateConfig(deltaTime: number) {
     if (this.start) {
       this.calcService.diffRateA = this.diffRateA;
       this.calcService.diffRateB = this.diffRateB;
       this.calcService.feedRate = this.feedRate;
       this.calcService.killRate = this.killRate;
-      // this.grid = this.calcService.calcNext(deltaTime);
     }
   }
 
@@ -44,19 +43,10 @@ export class ReactionDiffComponent {
   public reset() {
     this.start = false;
     this.calcService.reset();
-    // this.grid = this.calcService.grid;
   }
 
   public addChemical(event: { x: number, y: number }) {
-    const wasStarted = this.start;
-    if (wasStarted) {
-      this.start = false;
-    }
     this.calcService.addChemical(event.x, event.y);
-    if (wasStarted) {
-      this.start = true;
-    }
-   // this.grid = this.calcService.grid;
   }
 
 }
