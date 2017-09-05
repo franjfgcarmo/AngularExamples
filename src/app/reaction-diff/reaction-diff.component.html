@@ -1,48 +1,160 @@
-<h1>Reaction Diffusion Algorithm</h1>
-<app-p5-view
-  [width]="width"
-  [height]="height"
-  [calcService]="calcService"
-  [run]="start"
-  (calcNextValue)="updateConfig($event)"
-  (mousePressed)="addChemical($event)">
-</app-p5-view>
+<md-toolbar color="accent">
+  <md-toolbar-row>Reaction Diffusion Algorithm</md-toolbar-row>
+</md-toolbar>
 
-<label for="diffRateA">Diffustion Rate A:</label>
-<input id="diffRateA"
-       type="number"
-       step="0.05"
-       name="diffRateA"
-       min="0.0"
-       max="1.0"
-       [(ngModel)]="diffRateA">
-<label for="diffRateB">Diffustion Rate B:</label>
-<input id="diffRateB"
-       type="number"
-       step="0.05"
-       name="diffRateB"
-       min="0.0"
-       max="1.0"
-       [(ngModel)]="diffRateB">
-
-<label for="feedRate">Feed rate for A:</label>
-<input id="feedRate"
-       type="number"
-       step="0.001"
-       name="feedRate"
-       min="0.000"
-       max="1.000"
-       [(ngModel)]="feedRate">
-<label for="killRate">Kill rate:</label>
-<input id="killRate"
-       type="number"
-       step="0.001"
-       name="killRate"
-       min="0.000"
-       max="1.000"
-       [(ngModel)]="killRate">
-
-<button (click)="toggleRunSim()">{{start ? 'Pause' : 'Run'}}</button>
-<button (click)="reset()">Reset</button>
+<md-card>
+  <md-card-title>Simulation</md-card-title>
+  <app-p5-view
+    [width]="width"
+    [height]="height"
+    [calcService]="calcService"
+    [run]="start"
+    [showFps]="showFps"
+    (calcNextValue)="updateConfig($event)"
+    (mousePressed)="addChemical($event)"
+  >
+  </app-p5-view>
+  <md-card-actions>
+    <a md-button (click)="toggleRunSim()">{{start ? 'Pause' : 'Run'}}</a>
+    <a md-button color="accent" (click)="reset()">Reset</a>
+    <md-checkbox mdInput id="showFps"
+                 type="checkbox"
+                 name="showFps"
+                 [(ngModel)]="showFps">
+      Show FPS
+    </md-checkbox>
+  </md-card-actions>
+</md-card>
+<md-card>
+  <md-card-title>Parameters</md-card-title>
+  <md-input-container class="small">
+    <input mdInput id="diffRateA"
+           placeholder="Diffusion A"
+           type="number"
+           step="0.05"
+           name="diffRateA"
+           min="0.0"
+           max="1.0"
+           [(ngModel)]="diffRateA">
+  </md-input-container>
+  <md-input-container>
+    <input mdInput id="diffRateB"
+           placeholder="Diffusion B"
+           type="number"
+           step="0.05"
+           name="diffRateB"
+           min="0.0"
+           max="1.0"
+           [(ngModel)]="diffRateB">
+  </md-input-container>
+  <md-input-container>
+    <input mdInput id="feedRate"
+           placeholder="Feed rate"
+           type="number"
+           step="0.001"
+           name="feedRate"
+           min="0.000"
+           max="1.000"
+           [(ngModel)]="feedRate">
+  </md-input-container>
+  <md-input-container>
+    <input mdInput id="killRate"
+           placeholder="Kill Rate"
+           type="number"
+           step="0.001"
+           name="killRate"
+           min="0.000"
+           max="1.000"
+           [(ngModel)]="killRate">
+  </md-input-container>
+</md-card>
+<md-card>
+  <md-card-title>Input Weights</md-card-title>
+  <div class="weightInput">
+    <div class="topWeights">
+      Top weights:
+      <md-input-container>
+        <input mdInput id="topLeft" type="number"
+               step="0.005"
+               name="topLeft"
+               min="-1.000"
+               max="1.000"
+               [(ngModel)]="weights.topLeft">
+      </md-input-container>
+      <md-input-container>
+        <input mdInput id="topCenter" type="number"
+               step="0.005"
+               name="topCenter"
+               min="-1.000"
+               max="1.000"
+               [(ngModel)]="weights.topCenter">
+      </md-input-container>
+      <md-input-container>
+        <input mdInput id="topRight" type="number"
+               step="0.005"
+               name="topRight"
+               min="-1.000"
+               max="1.000"
+               [(ngModel)]="weights.topRight">
+      </md-input-container>
+    </div>
+    <div class="centerWeights">
+      Center weights:
+      <div>
+        <md-input-container>
+          <input mdInput id="left" type="number"
+                 step="0.005"
+                 name="left"
+                 min="-1.000"
+                 max="1.000"
+                 [(ngModel)]="weights.left">
+        </md-input-container>
+        <md-input-container>
+          <input mdInput id="center" type="number"
+                 step="0.005"
+                 name="center"
+                 min="-1.000"
+                 max="1.000"
+                 [(ngModel)]="weights.center">
+        </md-input-container>
+        <md-input-container>
+          <input mdInput id="right" type="number"
+                 step="0.005"
+                 name="right"
+                 min="-1.000"
+                 max="1.000"
+                 [(ngModel)]="weights.right">
+        </md-input-container>
+      </div>
+    </div>
+    <div class="bottomWeights">
+      Bottom weights:
+      <md-input-container>
+        <input mdInput id="bottomLeft" type="number"
+               step="0.005"
+               name="bottomLeft"
+               min="-1.000"
+               max="1.000"
+               [(ngModel)]="weights.bottomLeft">
+      </md-input-container>
+      <md-input-container>
+        <input mdInput id="bottomCenter" type="number"
+               step="0.005"
+               name="bottomCenter"
+               min="-1.000"
+               max="1.000"
+               [(ngModel)]="weights.bottomCenter">
+      </md-input-container>
+      <md-input-container>
+        <input mdInput id="bottomRight" type="number"
+               step="0.005"
+               name="bottomRight"
+               min="-1.000"
+               max="1.000"
+               [(ngModel)]="weights.bottomRight">
+      </md-input-container>
+    </div>
+  </div>
+</md-card>
 
 

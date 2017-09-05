@@ -1,5 +1,8 @@
 import {ChangeDetectionStrategy, Component} from '@angular/core';
-import {CalcService, CalcServiceFactory, Cell} from './calculation.service';
+import {
+  ReactionDiffCalcService, ReactionDiffCalcServiceFactory, Cell,
+  CellWeights
+} from './reaction-diff-calculation.service';
 
 @Component({
   selector: 'app-reaction-diff',
@@ -8,23 +11,26 @@ import {CalcService, CalcServiceFactory, Cell} from './calculation.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ReactionDiffComponent {
-  public calcService: CalcService;
+  public calcService: ReactionDiffCalcService;
+  public start = false;
+  public showFps = true;
   public width = 200;
   public height = 200;
-  public start = false;
   public diffRateA;
   public diffRateB;
   public feedRate;
   public killRate;
   public grid: Array<Cell[]>;
+  public weights: CellWeights;
 
-  constructor(calcFactory: CalcServiceFactory) {
+  constructor(calcFactory: ReactionDiffCalcServiceFactory) {
     this.calcService = calcFactory.createCalcService(this.width, this.height);
     this.diffRateA = this.calcService.diffRateA;
     this.diffRateB = this.calcService.diffRateB;
     this.feedRate = this.calcService.feedRate;
     this.killRate = this.calcService.killRate;
     this.grid = this.calcService.grid;
+    this.weights = this.calcService.weights;
   }
 
   public updateConfig(deltaTime: number) {

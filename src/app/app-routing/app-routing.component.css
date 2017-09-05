@@ -1,9 +1,0 @@
-:host{
-  padding: 20px;
-
-}
-nav {
-  padding-left: 10px;
-  display:flex;
-  flex-flow: column;
-}

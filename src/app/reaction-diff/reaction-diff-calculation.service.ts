@@ -1,32 +1,53 @@
 import {Injectable} from '@angular/core';
 
 @Injectable()
-export class CalcServiceFactory {
+export class ReactionDiffCalcServiceFactory {
 
   constructor() {
   }
 
   public createCalcService(width: number, height: number) {
-    return new CalcService(width, height);
+    return new ReactionDiffCalcService(width, height);
   }
 }
 
-export class Cell {
-
-
-  constructor(public a: number, public b: number) {
-  }
-
-
+export interface Cell {
+  a: number;
+  b: number;
 }
 
-export class CalcService {
+export interface CellWeights {
+  topLeft: number;
+  topCenter: number;
+  topRight: number;
+  left: number;
+  center: number;
+  right: number;
+  bottomLeft: number;
+  bottomCenter: number;
+  bottomRight: number;
+}
+
+const defaults = {
+  diffRateA: 1.0,
+  diffRateB: 0.5,
+  feedRate: 0.055,
+  killRate: 0.062,
+  weights: {
+    topLeft: 0.05, topCenter: 0.2, topRight: 0.05,
+    left: 0.2, center: -1.0, right: 0.2,
+    bottomLeft: 0.05, bottomCenter: 0.2, bottomRight: 0.05
+  }
+};
+
+export class ReactionDiffCalcService {
   public grid: Array<Array<Cell>>;
   public next: Array<Array<Cell>>;
-  public diffRateA = 1.0;
-  public diffRateB = 0.5;
-  public feedRate = 0.055;
-  public killRate = 0.062;
+  public diffRateA = defaults.diffRateA;
+  public diffRateB = defaults.diffRateB;
+  public feedRate = defaults.feedRate;
+  public killRate = defaults.killRate;
+  public weights: CellWeights = defaults.weights;
 
   constructor(private width: number, private height: number) {
     this.init();
@@ -56,8 +77,7 @@ export class CalcService {
         const laplace = this.laplace(x, y);
         const nextCell =
           this.calcNextCell(
-            col[y].a,
-            col[y].b,
+            col[y],
             deltaT,
             this.diffRateA,
             this.diffRateB,
@@ -74,35 +94,36 @@ export class CalcService {
   }
 
   addChemical(x, y) {
-    console.log('addChemicals: ', x, y);
     for (let i = x - 5; i < x + 5; i++) {
       for (let j = y - 5; j < y + 5; j++) {
         const wrappedX = i < 0 ? this.width + i : i % this.width;
         const wrappedY = j < 0 ? this.height + j : j % this.height;
-        const cell = this.grid[wrappedX][wrappedY];
         this.grid[wrappedX][wrappedY] = {a: 0, b: 1};
       }
     }
   }
 
-  calcNextCell(a: number,
-               b: number,
+  calcNextCell(cell: Cell,
                deltaT: number = 1,
                dA: number,
                dB: number,
                f: number,
                k: number,
                laplaceA: number,
-               laplaceB: number): { a: number, b: number } {
-    const abb = a * b * b;
-    const nextA = a +
+               laplaceB: number): Cell {
+
+    const abb = cell.a * cell.b * cell.b;
+
+    const nextA = cell.a +
       ((dA * laplaceA) -
         abb +
-        (f * (1 - a))) * deltaT;
-    const nextB = b +
+        (f * (1 - cell.a))) * deltaT;
+
+    const nextB = cell.b +
       ((dB * laplaceB) +
         abb -
-        ((k + f) * b)) * deltaT;
+        ((k + f) * cell.b)) * deltaT;
+
     return {a: this.constrain(nextA), b: this.constrain(nextB)};
   }
 
@@ -117,36 +138,16 @@ export class CalcService {
       sumA += cell.a * weight;
       sumB += cell.b * weight;
     };
-    add(x, y, -1.0); // center weight -1
-    add(wX(x - 1), y, 0.2); // diagonal weight 0.2
-    add(wX(x + 1), y, 0.2); // diagonal weight 0.2
-    add(x, wY(y + 1), 0.2); // diagonal weight 0.2
-    add(x, wY(y - 1), 0.2); // diagonal weight 0.2
-    add(wX(x - 1), wY(y - 1), 0.05); // center weight 0.05
-    add(wX(x - 1), wY(y + 1), 0.05); // center weight 0.05
-    add(wX(x + 1), wY(y - 1), 0.05); // center weight 0.05
-    add(wX(x + 1), wY(y + 1), 0.05); // center weight 0.05
+    add(x, y, this.weights.center);
+    add(wX(x - 1), y, this.weights.left);
+    add(wX(x + 1), y, this.weights.right);
+    add(x, wY(y + 1), this.weights.bottomCenter);
+    add(x, wY(y - 1), this.weights.topCenter);
+    add(wX(x - 1), wY(y - 1), this.weights.topLeft);
+    add(wX(x - 1), wY(y + 1), this.weights.bottomLeft);
+    add(wX(x + 1), wY(y - 1), this.weights.topRight);
+    add(wX(x + 1), wY(y + 1), this.weights.bottomRight);
     return {sumA, sumB};
-
-
-  }
-
-  laplaceB(x: number, y: number) {
-    let sum = 0;
-
-    const wX = (i) => i < 0 ? this.width + i : i % this.width;
-    const wY = (j) => j < 0 ? this.height + j : j % this.height;
-
-    sum += this.grid[x][y].b * -1.0; // center weight -1
-    sum += this.grid[wX(x - 1)][y].b * 0.2; // diagonal weight 0.2
-    sum += this.grid[wX(x + 1)][y].b * 0.2; // diagonal weight 0.2
-    sum += this.grid[x][wY(y + 1)].b * 0.2; // diagonal weight 0.2
-    sum += this.grid[x][wY(y - 1)].b * 0.2; // diagonal weight 0.2
-    sum += this.grid[wX(x - 1)][wY(y - 1)].b * 0.05; // center weight 0.05
-    sum += this.grid[wX(x - 1)][wY(y + 1)].b * 0.05; // center weight 0.05
-    sum += this.grid[wX(x + 1)][wY(y - 1)].b * 0.05; // center weight 0.05
-    sum += this.grid[wX(x + 1)][wY(y + 1)].b * 0.05; // center weight 0.05
-    return sum;
   }
 
   reset() {

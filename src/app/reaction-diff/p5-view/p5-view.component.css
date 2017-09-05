@@ -1,0 +1,8 @@
+.canvasContainer {
+  display: flex;
+  background-color: darkgrey;
+}
+
+:host >>> canvas {
+  margin: auto;
+}

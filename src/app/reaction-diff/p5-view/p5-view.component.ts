@@ -8,16 +8,16 @@ import {
   OnChanges,
   Output,
   SimpleChanges,
-  ViewChild
+  ViewChild, ViewEncapsulation
 } from '@angular/core';
 import * as p5 from 'p5';
-import {CalcService} from '../calculation.service';
+import {ReactionDiffCalcService} from '../reaction-diff-calculation.service';
 
 @Component({
   selector: 'app-p5-view',
   templateUrl: './p5-view.component.html',
   styleUrls: ['./p5-view.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class P5ViewComponent implements AfterContentInit, OnChanges {
 
@@ -25,12 +25,13 @@ export class P5ViewComponent implements AfterContentInit, OnChanges {
   @ViewChild('drawArea') drawArea: ElementRef;
   @Input() width: number;
   @Input() height: number;
-  @Input() calcService: CalcService;
+  @Input() calcService: ReactionDiffCalcService;
   @Input() run = false;
+  @Input() showFps = false;
   private scetch: any;
   @Output() afterFrameDrawn: EventEmitter<number> = new EventEmitter<number>();
   @Output() mousePressed: EventEmitter<{ x: number, y: number }> = new EventEmitter();
-  private frameRate = 1.0;
+  private frameRate = 60;
 
   constructor() {
   }
@@ -46,6 +47,7 @@ export class P5ViewComponent implements AfterContentInit, OnChanges {
     p.setup = () => {
       p.createCanvas(this.width, this.height);
       p.pixelDensity(1);
+      p.frameRate(this.frameRate);
     };
 
     p.draw = () => {
@@ -69,11 +71,12 @@ export class P5ViewComponent implements AfterContentInit, OnChanges {
         }
         p.updatePixels();
       }
-
-      const frameRate = p.frameRate();
-      this.frameRate = this.frameRate * 0.95 + frameRate * 0.05;
-      p.fill('green');
-      p.text('fps: ' + p.floor(this.frameRate), 10, 10);
+      if (this.showFps) {
+        const frameRate = p.frameRate();
+        this.frameRate = this.frameRate * 0.95 + frameRate * 0.05;
+        p.fill('green');
+        p.text('fps: ' + p.floor(this.frameRate), 10, 10);
+      }
       if (this.run) {
         for (let i = 0; i < 1; i++) {
           this.calcService.calcNext(1.0);
