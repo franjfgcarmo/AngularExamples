@@ -6,7 +6,7 @@ import {
   MdCardModule,
   MdCheckboxModule,
   MdIconModule,
-  MdInputModule,
+  MdInputModule, MdListModule,
   MdMenuModule,
   MdToolbarModule
 } from '@angular/material';
@@ -23,7 +23,8 @@ import {FormsModule} from '@angular/forms';
     MdToolbarModule,
     MdIconModule,
     MdMenuModule,
-    MdCardModule
+    MdCardModule,
+    MdListModule
     ]
 })
 export class SharedModule {
