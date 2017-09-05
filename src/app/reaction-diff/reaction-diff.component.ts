@@ -20,26 +20,27 @@ export class ReactionDiffComponent {
   public diffRateB;
   public feedRate;
   public killRate;
-  public grid: Array<Cell[]>;
   public weights: CellWeights;
 
-  constructor(calcFactory: ReactionDiffCalcServiceFactory) {
+  constructor(private calcFactory: ReactionDiffCalcServiceFactory) {
     this.calcService = calcFactory.createCalcService(this.width, this.height);
+    this.getConfig();
+  }
+
+  public getConfig() {
     this.diffRateA = this.calcService.diffRateA;
     this.diffRateB = this.calcService.diffRateB;
     this.feedRate = this.calcService.feedRate;
     this.killRate = this.calcService.killRate;
-    this.grid = this.calcService.grid;
     this.weights = this.calcService.weights;
   }
 
-  public updateConfig(deltaTime: number) {
-    if (this.start) {
-      this.calcService.diffRateA = this.diffRateA;
-      this.calcService.diffRateB = this.diffRateB;
-      this.calcService.feedRate = this.feedRate;
-      this.calcService.killRate = this.killRate;
-    }
+  public updateCalcServiceConfig() {
+    this.calcService.diffRateA = this.diffRateA;
+    this.calcService.diffRateB = this.diffRateB;
+    this.calcService.feedRate = this.feedRate;
+    this.calcService.killRate = this.killRate;
+    this.calcService.weights = this.weights;
   }
 
   public toggleRunSim(): void {
@@ -53,6 +54,15 @@ export class ReactionDiffComponent {
 
   public addChemical(event: { x: number, y: number }) {
     this.calcService.addChemical(event.x, event.y);
+  }
+
+  public resetParametersWeights() {
+    this.calcService.resetParamsAndWeights();
+    this.getConfig();
+  }
+
+  public updateDimension() {
+    this.calcService = this.calcFactory.createCalcService(this.width, this.height);
   }
 
 }

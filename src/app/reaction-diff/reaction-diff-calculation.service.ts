@@ -43,13 +43,14 @@ const defaults = {
 export class ReactionDiffCalcService {
   public grid: Array<Array<Cell>>;
   public next: Array<Array<Cell>>;
-  public diffRateA = defaults.diffRateA;
-  public diffRateB = defaults.diffRateB;
-  public feedRate = defaults.feedRate;
-  public killRate = defaults.killRate;
-  public weights: CellWeights = defaults.weights;
+  public diffRateA;
+  public diffRateB;
+  public feedRate;
+  public killRate;
+  public weights: CellWeights;
 
   constructor(private width: number, private height: number) {
+    this.resetParamsAndWeights();
     this.init();
   }
 
@@ -158,5 +159,11 @@ export class ReactionDiffCalcService {
     return Math.min(1.0, Math.max(0.0, val));
   }
 
-
+  resetParamsAndWeights() {
+    this.diffRateA = defaults.diffRateA;
+    this.diffRateB = defaults.diffRateB;
+    this.feedRate = defaults.feedRate;
+    this.killRate = defaults.killRate;
+    this.weights = Object.assign({}, defaults.weights);
+  }
 }

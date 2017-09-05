@@ -8,68 +8,91 @@
   </md-card-title>
 
   <app-p5-view
-    [width]="width"
-    [height]="height"
+    [simWidth]="width"
+    [simHeight]="height"
     [calcService]="calcService"
     [run]="start"
     [showFps]="showFps"
-    (calcNextValue)="updateConfig($event)"
+    (calcNextValue)="updateCalcServiceConfig($event)"
     (mousePressed)="addChemical($event)">
   </app-p5-view>
   <md-card-actions>
     <a md-button (click)="toggleRunSim()">{{start ? 'Pause' : 'Run'}}</a>
     <a md-button color="accent" (click)="reset()">Reset</a>
-    <md-checkbox mdInput id="showFps"
-                 type="checkbox"
-                 name="showFps"
-                 [(ngModel)]="showFps">
+    <md-checkbox
+      mdInput id="showFps"
+      type="checkbox"
+      name="showFps"
+      [(ngModel)]="showFps">
       Show FPS
     </md-checkbox>
   </md-card-actions>
+  <md-input-container class="small">
+    <input mdInput id="width"
+           placeholder="width"
+           type="number"
+           step="1"
+           name="width"
+           min="0"
+           max="1000"
+           [(ngModel)]="width"
+           (change)="updateDimension()">
+  </md-input-container>
+  <md-input-container class="small">
+    <input mdInput id="height"
+           placeholder="height"
+           type="number"
+           step="1"
+           name="height"
+           min="0"
+           max="1000"
+           [(ngModel)]="height"
+           (change)="updateDimension()">
+  </md-input-container>
 </md-card>
 
 <md-card class="parameters">
   <md-card-title>Parameters</md-card-title>
-    <md-input-container class="small">
-      <input mdInput id="diffRateA"
-             placeholder="Diffusion A"
-             type="number"
-             step="0.05"
-             name="diffRateA"
-             min="0.0"
-             max="1.0"
-             [(ngModel)]="diffRateA">
-    </md-input-container>
-    <md-input-container>
-      <input mdInput id="diffRateB"
-             placeholder="Diffusion B"
-             type="number"
-             step="0.05"
-             name="diffRateB"
-             min="0.0"
-             max="1.0"
-             [(ngModel)]="diffRateB">
-    </md-input-container>
-    <md-input-container>
-      <input mdInput id="feedRate"
-             placeholder="Feed rate"
-             type="number"
-             step="0.001"
-             name="feedRate"
-             min="0.000"
-             max="1.000"
-             [(ngModel)]="feedRate">
-    </md-input-container>
-    <md-input-container>
-      <input mdInput id="killRate"
-             placeholder="Kill Rate"
-             type="number"
-             step="0.001"
-             name="killRate"
-             min="0.000"
-             max="1.000"
-             [(ngModel)]="killRate">
-    </md-input-container>
+  <md-input-container class="small">
+    <input mdInput id="diffRateA"
+           placeholder="Diffusion A"
+           type="number"
+           step="0.05"
+           name="diffRateA"
+           min="0.0"
+           max="1.0"
+           [(ngModel)]="diffRateA">
+  </md-input-container>
+  <md-input-container>
+    <input mdInput id="diffRateB"
+           placeholder="Diffusion B"
+           type="number"
+           step="0.05"
+           name="diffRateB"
+           min="0.0"
+           max="1.0"
+           [(ngModel)]="diffRateB">
+  </md-input-container>
+  <md-input-container>
+    <input mdInput id="feedRate"
+           placeholder="Feed rate"
+           type="number"
+           step="0.001"
+           name="feedRate"
+           min="0.000"
+           max="1.000"
+           [(ngModel)]="feedRate">
+  </md-input-container>
+  <md-input-container>
+    <input mdInput id="killRate"
+           placeholder="Kill Rate"
+           type="number"
+           step="0.001"
+           name="killRate"
+           min="0.000"
+           max="1.000"
+           [(ngModel)]="killRate">
+  </md-input-container>
 </md-card>
 <md-card>
   <md-card-title>Input Weights</md-card-title>
@@ -159,5 +182,14 @@
     </div>
   </div>
 </md-card>
-
+<md-card>
+  <md-card-title>
+    Reset parameters and weights
+  </md-card-title>
+  <button (click)="resetParametersWeights()"
+          color="accent"
+          md-raised-button>
+    Set parameters to default
+  </button>
+</md-card>
 

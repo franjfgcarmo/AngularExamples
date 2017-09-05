@@ -23,8 +23,8 @@ export class P5ViewComponent implements AfterContentInit, OnChanges {
 
 
   @ViewChild('drawArea') drawArea: ElementRef;
-  @Input() width: number;
-  @Input() height: number;
+  @Input() simWidth: number;
+  @Input() simHeight: number;
   @Input() calcService: ReactionDiffCalcService;
   @Input() run = false;
   @Input() showFps = false;
@@ -37,15 +37,22 @@ export class P5ViewComponent implements AfterContentInit, OnChanges {
   }
 
   ngAfterContentInit() {
-    this.scetch = new p5((p) => this.initP5(p), this.drawArea.nativeElement);
+    // this.scetch = new p5((p) => this.initP5(p), this.drawArea.nativeElement);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log(changes);
+    if (changes.calcService) {
+      if (this.scetch) {
+        this.scetch.remove();
+      }
+      this.scetch = new p5((p) => this.initP5(p), this.drawArea.nativeElement);
+    }
   }
 
   private initP5(p: any) {
     p.setup = () => {
-      p.createCanvas(this.width, this.height);
+      p.createCanvas(this.simWidth, this.simHeight);
       p.pixelDensity(1);
       p.frameRate(this.frameRate);
     };
@@ -88,7 +95,15 @@ export class P5ViewComponent implements AfterContentInit, OnChanges {
     p.mouseDragged = () => {
       const x = p.floor(p.mouseX);
       const y = p.floor(p.mouseY);
-      if (x > -1 && x < this.width && y > -1 && y < this.height) {
+      if (x > -1 && x < p.width && y > -1 && y < p.height) {
+        // this.mousePressed.emit({x, y});
+        this.calcService.addChemical(x, y);
+      }
+    };
+    p.mouseClicked = () => {
+      const x = p.floor(p.mouseX);
+      const y = p.floor(p.mouseY);
+      if (x > -1 && x < p.width && y > -1 && y < p.height) {
         // this.mousePressed.emit({x, y});
         this.calcService.addChemical(x, y);
       }
