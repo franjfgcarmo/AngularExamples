@@ -4,14 +4,16 @@ import {ReactionDiffCalcServiceFactory} from './reaction-diff-calculation.servic
 import {reactionDiffRoutes} from './reaction-diff-routing.module';
 import { P5ViewComponent } from './p5-view/p5-view.component';
 import {SharedModule} from '../shared/shared.module';
+import { WeightsConfigComponent } from './weights-config/weights-config.component';
+import {ReactionDiffConfigService} from './reaction-diff-config.service';
 
 @NgModule({
   imports: [
     reactionDiffRoutes,
     SharedModule,
   ],
-  declarations: [ReactionDiffComponent, P5ViewComponent],
+  declarations: [ReactionDiffComponent, P5ViewComponent, WeightsConfigComponent],
   exports: [ReactionDiffComponent],
-  providers: [ReactionDiffCalcServiceFactory]
+  providers: [ReactionDiffCalcServiceFactory, ReactionDiffConfigService]
 })
 export class ReactionDiffModule { }

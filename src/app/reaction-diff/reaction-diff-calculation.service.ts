@@ -1,57 +1,66 @@
 import {Injectable} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
+import {ReactionDiffCalcParams} from './reaction-diff-calc-params';
+import {Cell} from './cell';
+import {CalcCellWeights} from './cell-weights';
+import 'rxjs/add/operator/share';
+import {ReactionDiffConfigService} from './reaction-diff-config.service';
+import {Subscription} from 'rxjs/Subscription';
 
 @Injectable()
 export class ReactionDiffCalcServiceFactory {
+  lastCalcService: ReactionDiffCalcService;
 
-  constructor() {
+  constructor(private reactionDiffConfigService: ReactionDiffConfigService) {
   }
 
   public createCalcService(width: number, height: number) {
-    return new ReactionDiffCalcService(width, height);
+    this.destroyLastCalcService();
+    this.lastCalcService = new ReactionDiffCalcService(width, height, this.reactionDiffConfigService.calcParams$,
+      this.reactionDiffConfigService.calcCellWeights$);
+    return this.lastCalcService;
+  }
+
+  public destroyLastCalcService() {
+    if (this.lastCalcService) {
+      this.lastCalcService.destroy();
+      this.lastCalcService = null;
+    }
   }
 }
 
-export interface Cell {
-  a: number;
-  b: number;
-}
-
-export interface CellWeights {
-  topLeft: number;
-  topCenter: number;
-  topRight: number;
-  left: number;
-  center: number;
-  right: number;
-  bottomLeft: number;
-  bottomCenter: number;
-  bottomRight: number;
-}
-
-const defaults = {
-  diffRateA: 1.0,
-  diffRateB: 0.5,
-  feedRate: 0.055,
-  killRate: 0.062,
-  weights: {
-    topLeft: 0.05, topCenter: 0.2, topRight: 0.05,
-    left: 0.2, center: -1.0, right: 0.2,
-    bottomLeft: 0.05, bottomCenter: 0.2, bottomRight: 0.05
-  }
-};
+const constrain = (val: number) => Math.min(1.0, Math.max(0.0, val));
 
 export class ReactionDiffCalcService {
   public grid: Array<Array<Cell>>;
   public next: Array<Array<Cell>>;
-  public diffRateA;
-  public diffRateB;
-  public feedRate;
-  public killRate;
-  public weights: CellWeights;
+  private diffRateA;
+  private diffRateB;
+  private feedRate;
+  private killRate;
+  private weights: CalcCellWeights;
 
-  constructor(private width: number, private height: number) {
-    this.resetParamsAndWeights();
+  private subscriptions: Subscription;
+
+
+  constructor(private width: number,
+              private height: number,
+              calcParams$: Observable<ReactionDiffCalcParams>,
+              weightParams$: Observable<CalcCellWeights>) {
+    this.subscriptions = calcParams$.subscribe((calcParams) => this.setCalcParams(calcParams));
+    this.subscriptions.add(weightParams$.subscribe((weights) => this.setWeights(weights)));
     this.init();
+  }
+
+  private setWeights(weights: CalcCellWeights) {
+    this.weights = Object.assign({}, weights);
+  }
+
+  private setCalcParams(calcParams: ReactionDiffCalcParams) {
+    this.diffRateA = calcParams.diffRateA;
+    this.diffRateB = calcParams.diffRateB;
+    this.feedRate = calcParams.feedRate;
+    this.killRate = calcParams.killRate;
   }
 
   private init() {
@@ -68,25 +77,21 @@ export class ReactionDiffCalcService {
     }
 
     this.addChemical(Math.floor(this.width / 2), Math.floor(this.height / 2));
-    this.calcNext(1);
   }
 
-  calcNext(deltaT: number): void {
+  public calcNext(): void {
     for (let x = 0; x < this.grid.length; x++) {
       const col = this.grid[x];
       for (let y = 0; y < col.length; y++) {
         const laplace = this.laplace(x, y);
-        const nextCell =
-          this.calcNextCell(
-            col[y],
-            deltaT,
-            this.diffRateA,
-            this.diffRateB,
-            this.feedRate,
-            this.killRate,
-            laplace.sumA,
-            laplace.sumB);
-        this.next[x][y] = nextCell;
+        this.next[x][y] = this.calcNextCell(
+          col[y],
+          this.diffRateA,
+          this.diffRateB,
+          this.feedRate,
+          this.killRate,
+          laplace.sumA,
+          laplace.sumB);
       }
     }
     const tmp = this.grid;
@@ -94,41 +99,40 @@ export class ReactionDiffCalcService {
     this.next = tmp;
   }
 
+  private calcNextCell(cell: Cell,
+                       dA: number,
+                       dB: number,
+                       f: number,
+                       k: number,
+                       laplaceA: number,
+                       laplaceB: number): Cell {
+
+    const abb = cell.a * cell.b * cell.b;
+
+    const nextA = cell.a +
+      (dA * laplaceA) -
+        abb +
+        (f * (1 - cell.a));
+
+    const nextB = cell.b +
+      (dB * laplaceB) +
+        abb -
+        ((k + f) * cell.b);
+
+    return {a: constrain(nextA), b: constrain(nextB)};
+  }
+
   addChemical(x, y) {
     for (let i = x - 5; i < x + 5; i++) {
       for (let j = y - 5; j < y + 5; j++) {
         const wrappedX = i < 0 ? this.width + i : i % this.width;
         const wrappedY = j < 0 ? this.height + j : j % this.height;
-        this.grid[wrappedX][wrappedY] = {a: 0, b: 1};
+        this.grid[wrappedX][wrappedY] = {a: 1, b: 1};
       }
     }
   }
 
-  calcNextCell(cell: Cell,
-               deltaT: number = 1,
-               dA: number,
-               dB: number,
-               f: number,
-               k: number,
-               laplaceA: number,
-               laplaceB: number): Cell {
-
-    const abb = cell.a * cell.b * cell.b;
-
-    const nextA = cell.a +
-      ((dA * laplaceA) -
-        abb +
-        (f * (1 - cell.a))) * deltaT;
-
-    const nextB = cell.b +
-      ((dB * laplaceB) +
-        abb -
-        ((k + f) * cell.b)) * deltaT;
-
-    return {a: this.constrain(nextA), b: this.constrain(nextB)};
-  }
-
-  laplace(x: number, y: number) {
+  private laplace(x: number, y: number) {
     let sumA = 0.0;
     let sumB = 0.0;
 
@@ -139,31 +143,26 @@ export class ReactionDiffCalcService {
       sumA += cell.a * weight;
       sumB += cell.b * weight;
     };
-    add(x, y, this.weights.center);
-    add(wX(x - 1), y, this.weights.left);
-    add(wX(x + 1), y, this.weights.right);
-    add(x, wY(y + 1), this.weights.bottomCenter);
-    add(x, wY(y - 1), this.weights.topCenter);
-    add(wX(x - 1), wY(y - 1), this.weights.topLeft);
-    add(wX(x - 1), wY(y + 1), this.weights.bottomLeft);
-    add(wX(x + 1), wY(y - 1), this.weights.topRight);
-    add(wX(x + 1), wY(y + 1), this.weights.bottomRight);
+    const w = this.weights;
+    add(x, y, w.center);
+    add(wX(x - 1), y, w.left);
+    add(wX(x + 1), y, w.right);
+    add(x, wY(y + 1), w.bottomCenter);
+    add(x, wY(y - 1), w.topCenter);
+    add(wX(x - 1), wY(y - 1), w.topLeft);
+    add(wX(x - 1), wY(y + 1), w.bottomLeft);
+    add(wX(x + 1), wY(y - 1), w.topRight);
+    add(wX(x + 1), wY(y + 1), w.bottomRight);
     return {sumA, sumB};
   }
 
-  reset() {
+  public reset() {
     this.init();
   }
 
-  constrain(val) {
-    return Math.min(1.0, Math.max(0.0, val));
-  }
-
-  resetParamsAndWeights() {
-    this.diffRateA = defaults.diffRateA;
-    this.diffRateB = defaults.diffRateB;
-    this.feedRate = defaults.feedRate;
-    this.killRate = defaults.killRate;
-    this.weights = Object.assign({}, defaults.weights);
+  public destroy() {
+    this.subscriptions.unsubscribe();
+    this.grid = [];
+    this.next = [];
   }
 }

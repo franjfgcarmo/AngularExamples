@@ -11,7 +11,7 @@ import {
   MdToolbarModule
 } from '@angular/material';
 import {FormsModule} from '@angular/forms';
-
+import 'rxjs/add/operator/map';
 
 @NgModule({
   exports: [

@@ -8,7 +8,7 @@ import {
   OnChanges,
   Output,
   SimpleChanges,
-  ViewChild, ViewEncapsulation
+  ViewChild
 } from '@angular/core';
 import * as p5 from 'p5';
 import {ReactionDiffCalcService} from '../reaction-diff-calculation.service';
@@ -19,7 +19,7 @@ import {ReactionDiffCalcService} from '../reaction-diff-calculation.service';
   styleUrls: ['./p5-view.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class P5ViewComponent implements AfterContentInit, OnChanges {
+export class P5ViewComponent implements OnChanges {
 
 
   @ViewChild('drawArea') drawArea: ElementRef;
@@ -29,19 +29,13 @@ export class P5ViewComponent implements AfterContentInit, OnChanges {
   @Input() run = false;
   @Input() showFps = false;
   private scetch: any;
-  @Output() afterFrameDrawn: EventEmitter<number> = new EventEmitter<number>();
   @Output() mousePressed: EventEmitter<{ x: number, y: number }> = new EventEmitter();
   private frameRate = 60;
 
   constructor() {
   }
 
-  ngAfterContentInit() {
-    // this.scetch = new p5((p) => this.initP5(p), this.drawArea.nativeElement);
-  }
-
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes);
     if (changes.calcService) {
       if (this.scetch) {
         this.scetch.remove();
@@ -69,10 +63,11 @@ export class P5ViewComponent implements AfterContentInit, OnChanges {
             const a = column[y].a;
             const b = column[y].b;
             const r = p.constrain(p.floor((a - b) * 255), 0, 255);
-            // const g = p.constrain(p.floor((b - a) * 255), 0, 255);
+            const g = p.constrain(p.floor((b - a) * 255), 0, 255);
+            const blue = p.constrain(p.floor((a * b) * 255), 0, 255);
             p.pixels[pix + 0] = r;
-            p.pixels[pix + 1] = r;
-            p.pixels[pix + 2] = r;
+            p.pixels[pix + 1] = g;
+            p.pixels[pix + 2] = blue;
             p.pixels[pix + 3] = 255;
           }
         }
@@ -86,8 +81,7 @@ export class P5ViewComponent implements AfterContentInit, OnChanges {
       }
       if (this.run) {
         for (let i = 0; i < 1; i++) {
-          this.calcService.calcNext(1.0);
-          this.afterFrameDrawn.emit(1);
+          this.calcService.calcNext();
         }
       }
     };

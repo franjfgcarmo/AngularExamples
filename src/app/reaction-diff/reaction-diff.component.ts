@@ -1,8 +1,14 @@
-import {ChangeDetectionStrategy, Component} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {
-  ReactionDiffCalcService, ReactionDiffCalcServiceFactory, Cell,
-  CellWeights
+  ReactionDiffCalcService,
+  ReactionDiffCalcServiceFactory
 } from './reaction-diff-calculation.service';
+import 'rxjs/add/operator/do';
+import {CalcCellWeights} from './cell-weights';
+import {ReactionDiffConfigService} from './reaction-diff-config.service';
+import {ReactionDiffCalcParams} from './reaction-diff-calc-params';
+import {Observable} from "rxjs/Observable";
+
 
 @Component({
   selector: 'app-reaction-diff',
@@ -10,37 +16,25 @@ import {
   styleUrls: ['./reaction-diff.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ReactionDiffComponent {
+export class ReactionDiffComponent implements OnInit {
+
   public calcService: ReactionDiffCalcService;
   public start = false;
   public showFps = true;
   public width = 200;
   public height = 200;
-  public diffRateA;
-  public diffRateB;
-  public feedRate;
-  public killRate;
-  public weights: CellWeights;
+  public cellWeights$: Observable<CalcCellWeights>;
+  public calcParams: ReactionDiffCalcParams;
 
-  constructor(private calcFactory: ReactionDiffCalcServiceFactory) {
-    this.calcService = calcFactory.createCalcService(this.width, this.height);
-    this.getConfig();
+  constructor(private calcFactory: ReactionDiffCalcServiceFactory, private configService: ReactionDiffConfigService) {
   }
 
-  public getConfig() {
-    this.diffRateA = this.calcService.diffRateA;
-    this.diffRateB = this.calcService.diffRateB;
-    this.feedRate = this.calcService.feedRate;
-    this.killRate = this.calcService.killRate;
-    this.weights = this.calcService.weights;
-  }
-
-  public updateCalcServiceConfig() {
-    this.calcService.diffRateA = this.diffRateA;
-    this.calcService.diffRateB = this.diffRateB;
-    this.calcService.feedRate = this.feedRate;
-    this.calcService.killRate = this.killRate;
-    this.calcService.weights = this.weights;
+  public ngOnInit(): void {
+    this.calcService = this.calcFactory.createCalcService(this.width, this.height);
+    this.cellWeights$ = this.configService.calcCellWeights$;
+    this.configService.calcParams$.subscribe((calcParams) =>
+      this.calcParams = calcParams
+    );
   }
 
   public toggleRunSim(): void {
@@ -57,12 +51,21 @@ export class ReactionDiffComponent {
   }
 
   public resetParametersWeights() {
-    this.calcService.resetParamsAndWeights();
-    this.getConfig();
+    this.configService.resetCalcParams();
+    this.configService.resetCalcCellWeights();
   }
 
   public updateDimension() {
-    this.calcService = this.calcFactory.createCalcService(this.width, this.height);
+    this.ngOnInit();
+  }
+
+  public updateCalcParams(calcParams: ReactionDiffCalcParams) {
+    this.configService.updateCalcParams(calcParams);
+  }
+
+  public updateWeights(weights: CalcCellWeights) {
+    console.log('weights changed', weights);
+    this.configService.updateCalcCellWeights(weights);
   }
 
 }
