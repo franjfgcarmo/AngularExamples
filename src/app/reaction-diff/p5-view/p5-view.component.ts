@@ -63,11 +63,11 @@ export class P5ViewComponent implements OnChanges {
             const a = column[y].a;
             const b = column[y].b;
             const r = p.constrain(p.floor((a - b) * 255), 0, 255);
-            const g = p.constrain(p.floor((b - a) * 255), 0, 255);
-            const blue = p.constrain(p.floor((a * b) * 255), 0, 255);
+            // const g = p.constrain(p.floor((b - a) * 255), 0, 255);
+            // const blue = p.constrain(p.floor((a * b) * 255), 0, 255);
             p.pixels[pix + 0] = r;
-            p.pixels[pix + 1] = g;
-            p.pixels[pix + 2] = blue;
+            p.pixels[pix + 1] = r;
+            p.pixels[pix + 2] = r;
             p.pixels[pix + 3] = 255;
           }
         }

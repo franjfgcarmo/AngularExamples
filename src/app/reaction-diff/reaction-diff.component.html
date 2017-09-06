@@ -100,6 +100,11 @@
            (ngModelChange)="updateCalcParams(calcParams)"
     >
   </md-input-container>
+  <md-select placeholder="Example parameter config" (change)="setSelection($event)">
+    <md-option *ngFor="let example of examples" [value]="example">
+      {{ example }}
+    </md-option>
+  </md-select>
 </md-card>
 <app-weights-config [weights]="cellWeights$ | async" (onWeightsChanged)="updateWeights($event)"></app-weights-config>
 <md-card>

@@ -6,8 +6,10 @@ import {
   MdCardModule,
   MdCheckboxModule,
   MdIconModule,
-  MdInputModule, MdListModule,
+  MdInputModule,
+  MdListModule,
   MdMenuModule,
+  MdSelectModule,
   MdToolbarModule
 } from '@angular/material';
 import {FormsModule} from '@angular/forms';
@@ -24,8 +26,9 @@ import 'rxjs/add/operator/map';
     MdIconModule,
     MdMenuModule,
     MdCardModule,
-    MdListModule
-    ]
+    MdListModule,
+    MdSelectModule
+  ]
 })
 export class SharedModule {
   static forRoot(): ModuleWithProviders {

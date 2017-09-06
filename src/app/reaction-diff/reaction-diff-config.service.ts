@@ -11,8 +11,22 @@ export class ReactionDiffConfigService {
   static defaultParams: ReactionDiffCalcParams = {
     diffRateA: 1.0,
     diffRateB: 0.5,
+    feedRate: 0.055,
+    killRate: 0.062,
+  };
+
+  static mitosisParams: ReactionDiffCalcParams = {
+    diffRateA: 1.0,
+    diffRateB: 0.5,
     feedRate: 0.0367,
     killRate: 0.0649,
+  };
+  // coral growth" simulation (f=.0545, k=.062)
+  static coralGrowthParams: ReactionDiffCalcParams = {
+    diffRateA: 1.0,
+    diffRateB: 0.5,
+    feedRate: 0.0545,
+    killRate: 0.062,
   };
 
   static defaultWeights = {
@@ -21,11 +35,25 @@ export class ReactionDiffConfigService {
     bottomLeft: 0.05, bottomCenter: 0.2, bottomRight: 0.05
   };
 
+  static exampleWeights: Array<{ name: string, value: ReactionDiffCalcParams }> = [{
+    name: 'Default',
+    value: ReactionDiffConfigService.defaultParams
+  }, {
+    name: 'Coral growth',
+    value: ReactionDiffConfigService.coralGrowthParams
+  }, {
+    name: 'Mitosis',
+    value: ReactionDiffConfigService.mitosisParams
+  }
+  ];
+
   private paramsSubject$: Subject<ReactionDiffCalcParams> = new BehaviorSubject(ReactionDiffConfigService.defaultParams);
   private weightsSubject$: Subject<CalcCellWeights> = new BehaviorSubject(ReactionDiffConfigService.defaultWeights);
 
   public calcParams$: Observable<ReactionDiffCalcParams>;
   public calcCellWeights$: Observable<CalcCellWeights>;
+
+  public exampleOptions = ReactionDiffConfigService.exampleWeights.map(option => option.name);
 
   constructor() {
     this.calcParams$ = this.paramsSubject$.asObservable()
@@ -50,5 +78,11 @@ export class ReactionDiffConfigService {
     this.updateCalcCellWeights(ReactionDiffConfigService.defaultWeights);
   }
 
+  setSelection(name: string) {
+    const foundOption = ReactionDiffConfigService.exampleWeights.find((option) => option.name === name);
+    if (foundOption) {
+      this.updateCalcParams(foundOption.value);
+    }
+  }
 
 }
