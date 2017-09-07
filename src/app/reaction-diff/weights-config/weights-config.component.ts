@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
 import {CalcCellWeights} from '../cell-weights';
 
 @Component({
@@ -7,14 +7,32 @@ import {CalcCellWeights} from '../cell-weights';
   styleUrls: ['./weights-config.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WeightsConfigComponent {
+export class WeightsConfigComponent implements OnChanges {
   @Input() weights: CalcCellWeights;
   @Output() onWeightsChanged: EventEmitter<CalcCellWeights> = new EventEmitter<CalcCellWeights>();
+
+  private sumOfWeights;
 
   constructor() {
   }
 
+  ngOnChanges(simpleChanges) {
+    if (simpleChanges.weights) {
+      this.sumOfWeights = this.sumWeights();
+    }
+  }
+
   onWeightChanged() {
-    this.onWeightsChanged.emit(this.weights);
+    this.sumOfWeights = this.sumWeights();
+    if (this.sumOfWeights === 0) {
+      this.onWeightsChanged.emit(this.weights);
+    }
+  }
+
+  private sumWeights(): number {
+    const sum = Object.keys(this.weights)
+      .reduce((reduceSum: number, weight: string) =>
+        reduceSum + this.weights[weight], 0.0);
+    return Math.floor(sum * 10000) / 10000;
   }
 }

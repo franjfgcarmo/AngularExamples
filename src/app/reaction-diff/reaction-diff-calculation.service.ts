@@ -11,21 +11,18 @@ import {Subscription} from 'rxjs/Subscription';
 export class ReactionDiffCalcServiceFactory {
   lastCalcService: ReactionDiffCalcService;
 
-  constructor(private reactionDiffConfigService: ReactionDiffConfigService) {
+  constructor(private configService: ReactionDiffConfigService) {
   }
 
   public createCalcService(width: number, height: number) {
-    this.destroyLastCalcService();
-    this.lastCalcService = new ReactionDiffCalcService(width, height, this.reactionDiffConfigService.calcParams$,
-      this.reactionDiffConfigService.calcCellWeights$);
+    this.lastCalcService = new ReactionDiffCalcService(
+      width,
+      height,
+      this.configService.calcParams$,
+      this.configService.calcCellWeights$,
+      this.configService.addChemicalRadius$
+    );
     return this.lastCalcService;
-  }
-
-  public destroyLastCalcService() {
-    if (this.lastCalcService) {
-      this.lastCalcService.destroy();
-      this.lastCalcService = null;
-    }
   }
 }
 
@@ -39,16 +36,16 @@ export class ReactionDiffCalcService {
   private feedRate;
   private killRate;
   private weights: CalcCellWeights;
-
-  private subscriptions: Subscription;
-
+  private addChemicalRadius: number;
 
   constructor(private width: number,
               private height: number,
               calcParams$: Observable<ReactionDiffCalcParams>,
-              weightParams$: Observable<CalcCellWeights>) {
-    this.subscriptions = calcParams$.subscribe((calcParams) => this.setCalcParams(calcParams));
-    this.subscriptions.add(weightParams$.subscribe((weights) => this.setWeights(weights)));
+              weightParams$: Observable<CalcCellWeights>,
+              addChemicalRadius$: Observable<number>) {
+    calcParams$.subscribe((calcParams) => this.setCalcParams(calcParams));
+    weightParams$.subscribe((weights) => this.setWeights(weights));
+    addChemicalRadius$.subscribe((radius) => this.addChemicalRadius = radius);
     this.init();
   }
 
@@ -77,6 +74,45 @@ export class ReactionDiffCalcService {
     }
 
     this.addChemical(Math.floor(this.width / 2), Math.floor(this.height / 2));
+  }
+
+  public resize(newWidth: number, newHeight: number) {
+    console.log('old length:', this.grid.length, 'new length:', newWidth);
+
+    const createNewRow = () => [];
+    this.grid = this.adjustArrayLength(newWidth, this.grid, createNewRow);
+    this.next = this.adjustArrayLength(newWidth, this.next, createNewRow);
+    const createNewCell = () => {
+      return {a: 1, b: 0};
+    };
+    this.grid = this.grid.map((column) => this.adjustArrayLength(newHeight, column, createNewCell));
+    this.next = this.next.map((column) => this.adjustArrayLength(newHeight, column, createNewCell));
+    console.log('new grid length:', this.grid.length, 'should be:', newWidth);
+    this.width = newWidth;
+    this.height = newHeight;
+  }
+
+  private adjustArrayLength<T>(width: number, array: Array<T>, elementConstructor: () => T): Array<T> {
+    const difference = array.length - width;
+    const upperDiff = Math.round(Math.abs(difference) / 2);
+    const lowerDiff = Math.floor(Math.abs(difference) / 2);
+    if (difference > 0) {
+      array.splice(0, lowerDiff);
+      array.splice(array.length - upperDiff, upperDiff);
+    }
+    if (difference < 0) {
+      const preElemsToAdd: T[] = [];
+      for (let i = 0; i < lowerDiff; i++) {
+        preElemsToAdd.push(elementConstructor());
+      }
+      const postElemsToAdd: T[] = [];
+      for (let i = 0; i < upperDiff; i++) {
+        postElemsToAdd.push(elementConstructor());
+      }
+      array = [...preElemsToAdd, ...array, ...postElemsToAdd];
+    }
+
+    return array;
   }
 
   public calcNext(): void {
@@ -111,23 +147,29 @@ export class ReactionDiffCalcService {
 
     const nextA = cell.a +
       (dA * laplaceA) -
-        abb +
-        (f * (1 - cell.a));
+      abb +
+      (f * (1 - cell.a));
 
     const nextB = cell.b +
       (dB * laplaceB) +
-        abb -
-        ((k + f) * cell.b);
+      abb -
+      ((k + f) * cell.b);
 
     return {a: constrain(nextA), b: constrain(nextB)};
   }
 
   addChemical(x, y) {
-    for (let i = x - 5; i < x + 5; i++) {
-      for (let j = y - 5; j < y + 5; j++) {
-        const wrappedX = i < 0 ? this.width + i : i % this.width;
-        const wrappedY = j < 0 ? this.height + j : j % this.height;
-        this.grid[wrappedX][wrappedY] = {a: 1, b: 1};
+    const halfD = this.addChemicalRadius;
+    for (let i = -halfD; i < halfD; i++) {
+      for (let j = -halfD; j < halfD; j++) {
+        const wrappedX = x + i < 0 ? this.width + i : (x + i) % this.width;
+        const wrappedY = y + j < 0 ? this.height + j : (y + j) % this.height;
+        const bToAdd = halfD / (i * i + j * j);
+        const cell = this.grid[wrappedX][wrappedY];
+        this.grid[wrappedX][wrappedY] = {
+          a: cell.a,
+          b: constrain(cell.b + bToAdd)
+        };
       }
     }
   }
@@ -160,9 +202,4 @@ export class ReactionDiffCalcService {
     this.init();
   }
 
-  public destroy() {
-    this.subscriptions.unsubscribe();
-    this.grid = [];
-    this.next = [];
-  }
 }

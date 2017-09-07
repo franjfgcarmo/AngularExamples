@@ -7,7 +7,7 @@ import 'rxjs/add/operator/do';
 import {CalcCellWeights} from './cell-weights';
 import {ReactionDiffConfigService} from './reaction-diff-config.service';
 import {ReactionDiffCalcParams} from './reaction-diff-calc-params';
-import {Observable} from "rxjs/Observable";
+import {Observable} from 'rxjs/Observable';
 import {MdSelectChange} from '@angular/material';
 
 
@@ -27,16 +27,25 @@ export class ReactionDiffComponent implements OnInit {
   public cellWeights$: Observable<CalcCellWeights>;
   public calcParams: ReactionDiffCalcParams;
   public examples: string[];
+  public selectedExample: string;
+  public addChemicalRadius: number;
 
   constructor(private calcFactory: ReactionDiffCalcServiceFactory, private configService: ReactionDiffConfigService) {
   }
 
   public ngOnInit(): void {
     this.examples = this.configService.exampleOptions;
+
     this.calcService = this.calcFactory.createCalcService(this.width, this.height);
     this.cellWeights$ = this.configService.calcCellWeights$;
+    this.configService.selectedExample$.subscribe((example) =>
+      this.selectedExample = example
+    );
     this.configService.calcParams$.subscribe((calcParams) =>
       this.calcParams = calcParams
+    );
+    this.configService.addChemicalRadius$.subscribe((radius) =>
+      this.addChemicalRadius = radius
     );
   }
 
@@ -59,7 +68,7 @@ export class ReactionDiffComponent implements OnInit {
   }
 
   public updateDimension() {
-    this.ngOnInit();
+    this.calcService.resize(this.width, this.height);
   }
 
   public updateCalcParams(calcParams: ReactionDiffCalcParams) {
@@ -67,12 +76,15 @@ export class ReactionDiffComponent implements OnInit {
   }
 
   public updateWeights(weights: CalcCellWeights) {
-    console.log('weights changed', weights);
     this.configService.updateCalcCellWeights(weights);
   }
 
   public setSelection(option: MdSelectChange) {
-    console.log(option);
     this.configService.setSelection(option.value);
+  }
+
+  public updateAddChemicalRadius() {
+    console.log(this.addChemicalRadius);
+    this.configService.updateAddChemicalRadius(this.addChemicalRadius);
   }
 }

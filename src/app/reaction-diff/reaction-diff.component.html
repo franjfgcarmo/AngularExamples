@@ -48,9 +48,20 @@
            [(ngModel)]="height"
            (change)="updateDimension()">
   </md-input-container>
+  <md-input-container class="small">
+    <input mdInput id="addChemicalRadius"
+           placeholder="Radius of chemical B on click"
+           type="number"
+           step="1"
+           name="addChemicalRadius"
+           min="0"
+           max="50"
+           [(ngModel)]="addChemicalRadius"
+           (change)="updateAddChemicalRadius()">
+  </md-input-container>
 </md-card>
 
-<md-card class="parameters">
+<md-card class="parameters" *ngIf="calcParams">
   <md-card-title>Parameters</md-card-title>
   <md-input-container class="small">
     <input mdInput id="diffRateA"
@@ -100,7 +111,8 @@
            (ngModelChange)="updateCalcParams(calcParams)"
     >
   </md-input-container>
-  <md-select placeholder="Example parameter config" (change)="setSelection($event)">
+  <br>
+  <md-select placeholder="Example parameter config" [(ngModel)]="selectedExample " (change)="setSelection($event)">
     <md-option *ngFor="let example of examples" [value]="example">
       {{ example }}
     </md-option>

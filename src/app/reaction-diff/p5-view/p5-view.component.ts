@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import * as p5 from 'p5';
 import {ReactionDiffCalcService} from '../reaction-diff-calculation.service';
+import {ColorMapperService} from '../color-mapper.service';
 
 @Component({
   selector: 'app-p5-view',
@@ -30,17 +31,18 @@ export class P5ViewComponent implements OnChanges {
   @Input() showFps = false;
   private scetch: any;
   @Output() mousePressed: EventEmitter<{ x: number, y: number }> = new EventEmitter();
-  private frameRate = 60;
+  private frameRate = 1;
 
-  constructor() {
+  constructor(private colorMapper: ColorMapperService) {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.calcService) {
+    if (changes.simWidth || this.simHeight) {
       if (this.scetch) {
-        this.scetch.remove();
+        this.scetch.resizeCanvas(this.simWidth, this.simHeight);
+      } else {
+        this.scetch = new p5((p) => this.initP5(p), this.drawArea.nativeElement);
       }
-      this.scetch = new p5((p) => this.initP5(p), this.drawArea.nativeElement);
     }
   }
 
@@ -48,7 +50,6 @@ export class P5ViewComponent implements OnChanges {
     p.setup = () => {
       p.createCanvas(this.simWidth, this.simHeight);
       p.pixelDensity(1);
-      p.frameRate(this.frameRate);
     };
 
     p.draw = () => {
@@ -60,14 +61,10 @@ export class P5ViewComponent implements OnChanges {
           const column = grid[x];
           for (let y = 0; y < column.length; y++) {
             const pix = (x + y * p.width) * 4;
-            const a = column[y].a;
-            const b = column[y].b;
-            const r = p.constrain(p.floor((a - b) * 255), 0, 255);
-            // const g = p.constrain(p.floor((b - a) * 255), 0, 255);
-            // const blue = p.constrain(p.floor((a * b) * 255), 0, 255);
-            p.pixels[pix + 0] = r;
-            p.pixels[pix + 1] = r;
-            p.pixels[pix + 2] = r;
+            const cellColor = this.colorMapper.calcColorFor(column[y], p);
+            p.pixels[pix] = cellColor.r;
+            p.pixels[pix + 1] = cellColor.b;
+            p.pixels[pix + 2] = cellColor.g;
             p.pixels[pix + 3] = 255;
           }
         }

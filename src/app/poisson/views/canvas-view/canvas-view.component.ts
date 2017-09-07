@@ -75,7 +75,7 @@ export class CanvasViewComponent implements OnInit, AfterContentInit {
       this.circles.forEach((circle) => this.canvasDrawService.drawCircle(circle, step));
     }
     if (this.actives) {
-      this.canvasDrawService.setFillColor('red');
+      this.canvasDrawService.setFillColor('r');
       this.actives.forEach((active) => this.canvasDrawService.drawVec(active, 1));
     }
     if (this.lines) {
