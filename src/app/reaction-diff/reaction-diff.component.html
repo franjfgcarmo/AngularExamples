@@ -16,8 +16,8 @@
     (mousePressed)="addChemical($event)">
   </app-p5-view>
   <md-card-actions>
-    <a md-button (click)="toggleRunSim()">{{start ? 'Pause' : 'Run'}}</a>
-    <a md-button color="accent" (click)="reset()">Reset</a>
+    <a md-raised-button (click)="toggleRunSim()">{{start ? 'Pause' : 'Run'}}</a>
+    <a md-raised-button color="accent" (click)="reset()">Reset</a>
     <md-checkbox
       mdInput id="showFps"
       type="checkbox"

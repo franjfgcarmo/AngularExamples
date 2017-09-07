@@ -155,7 +155,7 @@ export class ReactionDiffCalcService {
       abb -
       ((k + f) * cell.b);
 
-    return {a: constrain(nextA), b: constrain(nextB)};
+    return {a: constrain(nextA), b: constrain(nextB) };
   }
 
   addChemical(x, y) {

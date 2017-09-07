@@ -12,7 +12,8 @@ import {
 } from '@angular/core';
 import * as p5 from 'p5';
 import {ReactionDiffCalcService} from '../reaction-diff-calculation.service';
-import {ColorMapperService} from '../color-mapper.service';
+import {ColorMapperService, ReactionDiffCellColor} from './color-mapper.service';
+import {Cell} from '../cell';
 
 @Component({
   selector: 'app-p5-view',
@@ -29,6 +30,7 @@ export class P5ViewComponent implements OnChanges {
   @Input() calcService: ReactionDiffCalcService;
   @Input() run = false;
   @Input() showFps = false;
+  @Input() scale = 1;
   private scetch: any;
   @Output() mousePressed: EventEmitter<{ x: number, y: number }> = new EventEmitter();
   private frameRate = 1;
@@ -39,7 +41,7 @@ export class P5ViewComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.simWidth || this.simHeight) {
       if (this.scetch) {
-        this.scetch.resizeCanvas(this.simWidth, this.simHeight);
+        this.scetch.resizeCanvas(Math.floor(this.simWidth * this.scale), Math.floor(this.simHeight * this.scale));
       } else {
         this.scetch = new p5((p) => this.initP5(p), this.drawArea.nativeElement);
       }
@@ -48,31 +50,33 @@ export class P5ViewComponent implements OnChanges {
 
   private initP5(p: any) {
     p.setup = () => {
-      p.createCanvas(this.simWidth, this.simHeight);
       p.pixelDensity(1);
+      p.createCanvas(Math.floor(this.simWidth * this.scale), Math.floor(this.simHeight * this.scale));
     };
 
     p.draw = () => {
       p.background(51);
       const grid = this.getGrid();
       if (grid) {
-        p.loadPixels();
+        const img = p.createImage(this.simWidth, this.simHeight);
+        img.loadPixels();
         for (let x = 0; x < grid.length; x++) {
           const column = grid[x];
           for (let y = 0; y < column.length; y++) {
             const pix = (x + y * p.width) * 4;
             const cellColor = this.colorMapper.calcColorFor(column[y], p);
-            p.pixels[pix] = cellColor.r;
-            p.pixels[pix + 1] = cellColor.b;
-            p.pixels[pix + 2] = cellColor.g;
-            p.pixels[pix + 3] = 255;
+            img.pixels[pix] = cellColor.r;
+            img.pixels[pix + 1] = cellColor.b;
+            img.pixels[pix + 2] = cellColor.g;
+            img.pixels[pix + 3] = 255;
           }
         }
-        p.updatePixels();
+        img.updatePixels();
+        p.background(img);
       }
       if (this.showFps) {
         const frameRate = p.frameRate();
-        this.frameRate = this.frameRate * 0.95 + frameRate * 0.05;
+        this.frameRate = this.frameRate * 0.8 + frameRate * 0.2;
         p.fill('green');
         p.text('fps: ' + p.floor(this.frameRate), 10, 10);
       }
@@ -98,6 +102,9 @@ export class P5ViewComponent implements OnChanges {
         // this.mousePressed.emit({x, y});
         this.calcService.addChemical(x, y);
       }
+    };
+    p.mouseOver = () => {
+
     };
   }
 

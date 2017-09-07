@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Cell} from './cell';
+import {Cell} from '../cell';
 
 export interface ReactionDiffCellColor {
   r: number;
@@ -37,14 +37,16 @@ export class ColorMapperService {
 
   private calcColor(a: number, b: number, p: any): any {
     const backgroundColor = p.color(this.backgroundColor.r, this.backgroundColor.g, this.backgroundColor.b);
-    const aColor = p.color(a, a, 120);
-    const bColor = p.color(0, 0, b);
+    const aColor = p.color(a, a, 204);
+    const bColor = p.color(0, 0, p.map(b, 0, 255, 0, 102));
+
     if (a === 0) {
-      return p.lerpColor(backgroundColor, bColor, b);
+      return p.lerpColor(backgroundColor, bColor, b / 255);
     }
     if (b === 0) {
-      return p.lerpColor(backgroundColor, aColor, a);
+      return p.lerpColor(backgroundColor, aColor, 0.5);
     }
+
     if (a === b) {
       return p.lerpColor(aColor, bColor, .5);
     }
