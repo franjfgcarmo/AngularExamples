@@ -1,10 +1,7 @@
-import {AfterContentInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {Vector} from './shared/vector';
-import {Subscription} from 'rxjs/Subscription';
-import {Subject} from 'rxjs/Subject';
-import {Observable} from 'rxjs/Observable';
 import {PoissonCalcService} from './poisson-calc.service';
-import 'rxjs/add/operator/scan';
+
 
 @Component({
   selector: 'app-poisson',

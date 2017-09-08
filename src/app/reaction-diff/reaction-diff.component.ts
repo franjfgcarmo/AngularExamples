@@ -1,8 +1,5 @@
 import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
-import {
-  ReactionDiffCalcService,
-  ReactionDiffCalcServiceFactory
-} from './reaction-diff-calculation.service';
+import {ReactionDiffCalcService, ReactionDiffCalcServiceFactory} from './reaction-diff-calculation.service';
 import 'rxjs/add/operator/do';
 import {CalcCellWeights} from './cell-weights';
 import {ReactionDiffConfigService} from './reaction-diff-config.service';
@@ -29,6 +26,7 @@ export class ReactionDiffComponent implements OnInit {
   public examples: string[];
   public selectedExample: string;
   public addChemicalRadius: number;
+  public scale = 1;
 
   constructor(private calcFactory: ReactionDiffCalcServiceFactory, private configService: ReactionDiffConfigService) {
   }

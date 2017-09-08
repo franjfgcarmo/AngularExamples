@@ -71,13 +71,21 @@ export class ReactionDiffConfigService {
     this.calcParams$ = this.paramsSubject$.asObservable()
       .map((calcParams) => Object.assign({}, calcParams));
     this.calcCellWeights$ = this.weightsSubject$.asObservable()
-      .map((calcWeights) => Object.assign({}, calcWeights));
+      .map((calcWeights) => Object.assign({}, calcWeights))
+      .map((weights) => this.trimWeights(weights));
+
     this.addChemicalRadius$ = this.addChemicalRadiusSubject$.asObservable();
     this.selectedExample$ =
       this.selectedExampleSubject$
         .asObservable()
         .do((example) =>
           (example) ? this.updateCalcParams(example.value) : null).map((example) => example ? example.name : null);
+  }
+
+  private trimWeights(weights: CalcCellWeights): CalcCellWeights {
+    return Object.keys(weights).reduce(
+      (result, key: string) =>
+        Object.assign(result, {[key]: Math.round(weights[key] * 10000) / 10000}), {}) as CalcCellWeights;
   }
 
   updateAddChemicalRadius(radius: number) {

@@ -51,7 +51,7 @@ export class P5ViewComponent implements AfterContentInit {
     let wood;
 
     p.preload = () => {
-      wood = p.loadImage('/assets/wood.jpeg');
+      wood = p.loadImage('assets/wood.jpeg');
     };
 
     p.setup = () => {

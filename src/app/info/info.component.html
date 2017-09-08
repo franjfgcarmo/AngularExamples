@@ -1,0 +1,15 @@
+<md-card>
+  <md-card-title>
+    Technologies used:
+  </md-card-title>
+
+  <div class="technologyCards">
+    <app-technology
+      *ngFor="let tech of technologies"
+      [title]="tech.title"
+      [image]="tech.image"
+      [link]="tech.link">
+    </app-technology>
+  </div>
+
+</md-card>

@@ -1,15 +1,25 @@
-<div>
-  <div class="play">
-    <button (click)="togglePlay()">{{play ? 'Pause': 'Play'}}</button>
-    <button (click)="reset()">Reset</button>
-  </div>
+<md-card>
+  <md-card>
+    <button md-raised-button (click)="togglePlay()">{{play ? 'Pause': 'Play'}}</button>
+    <button md-raised-button color="accent" (click)="reset()">Reset</button>
+  </md-card>
+  <md-card>
+    <md-card-title>Configs</md-card-title>
 
-  <div>Configs
-    <label for="radius">Min Radius between points</label>
-    <input id="radius" type="number" step ="0.1" name="radius" min="5.0" [(ngModel)]="radius" (ngModelChange)=radiusChanged($event)>
-    <label for="samples">Samples per iteration</label>
-    <input id="samples" type="number" name="samples" min="1" [(ngModel)]="k" (ngModelChange)=kChanged($event)>
-    <label for="iterationsPerFrame">Iterations per frame</label>
-    <input id="iterationsPerFrame" type="number" name="iterationsPerFrame" min="1" [(ngModel)]="iterationsPerFrame" (ngModelChange)=iterationsPerFrameChanged($event)>
-  </div>
-</div>
+    <md-input-container>
+      <input mdInput placeholder="Min Radius between points" id="radius" type="number" step="0.1" name="radius"
+             min="5.0" [(ngModel)]="radius"
+             (ngModelChange)=radiusChanged($event)>
+    </md-input-container>
+    <md-input-container>
+      <input mdInput placeholder="Samples per iteration" id="samples" type="number" name="samples" min="1" [(ngModel)]="k"
+             (ngModelChange)=kChanged($event)>
+    </md-input-container>
+    <md-input-container>
+      <input mdInput placeholder="Iterations per frame" id="iterationsPerFrame" type="number" name="iterationsPerFrame" min="1"
+             [(ngModel)]="iterationsPerFrame"
+             (ngModelChange)=iterationsPerFrameChanged($event)>
+    </md-input-container>
+
+  </md-card>
+</md-card>

@@ -6,6 +6,14 @@
   width: 100vw;
 }
 
+.navigationSidenav {
+  max-width: 300px;
+}
+
+.active{
+  color: #69f0ae;
+}
+
 .simContainer {
   width: 100vw;
   display: flex;

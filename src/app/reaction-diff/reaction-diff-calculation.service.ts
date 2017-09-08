@@ -5,7 +5,6 @@ import {Cell} from './cell';
 import {CalcCellWeights} from './cell-weights';
 import 'rxjs/add/operator/share';
 import {ReactionDiffConfigService} from './reaction-diff-config.service';
-import {Subscription} from 'rxjs/Subscription';
 
 @Injectable()
 export class ReactionDiffCalcServiceFactory {

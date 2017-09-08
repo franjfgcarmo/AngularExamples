@@ -24,7 +24,6 @@
     "@angular/platform-browser-dynamic": "^4.2.4",
     "@angular/router": "^4.2.4",
     "@types/aframe": "^0.5.0",
-    "aframe": "^0.6.1",
     "core-js": "^2.4.1",
     "gl-matrix": "^2.4.0",
     "p5": "^0.5.14",

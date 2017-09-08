@@ -13,7 +13,6 @@ import {Circle} from '../../shared/circle';
 import {CanvasDrawService} from './canvas-draw.service';
 import {IntervalObservable} from 'rxjs/observable/IntervalObservable';
 import {Scheduler} from 'rxjs/Rx';
-import {Subject} from 'rxjs/Subject';
 import {Observable} from 'rxjs/Observable';
 import {Vector} from '../../shared/vector';
 import {Line} from '../../shared/line';

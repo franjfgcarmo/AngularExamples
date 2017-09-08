@@ -5,10 +5,14 @@ import {appRoutes} from './app-routing.module';
 import {SharedModule} from './shared/shared.module';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {InfoComponent} from './info/info.component';
+import {TechnologyComponent} from './info/technology/technology.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    InfoComponent,
+    TechnologyComponent,
   ],
   imports: [
     BrowserModule,

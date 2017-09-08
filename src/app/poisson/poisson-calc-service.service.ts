@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {PoissonConfigService} from './poisson-config.service';
 import {Circle} from './shared/circle';
 import {Subject} from 'rxjs/Subject';
-import {Observable, Subscribable} from 'rxjs/Observable';
+import {Observable} from 'rxjs/Observable';
 import {Vector} from './shared/vector';
 import {RandomService} from '../shared/random.service';
 import {Subscription} from 'rxjs/Subscription';

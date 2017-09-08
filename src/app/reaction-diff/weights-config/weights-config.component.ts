@@ -33,6 +33,6 @@ export class WeightsConfigComponent implements OnChanges {
     const sum = Object.keys(this.weights)
       .reduce((reduceSum: number, weight: string) =>
         reduceSum + this.weights[weight], 0.0);
-    return Math.floor(sum * 10000) / 10000;
+    return Math.floor(sum * 1000) / 1000;
   }
 }

@@ -1,5 +1,3 @@
-:host {
-  margin: 10px;
-  display: flex;
-  height: 80vh;
+.simContent{
+  display:flex;
 }

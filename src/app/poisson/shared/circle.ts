@@ -1,5 +1,4 @@
 import {Vector} from './vector';
-import {Colors} from 'three';
 
 export class Circle {
   constructor(public pos: Vector, public r: number) {

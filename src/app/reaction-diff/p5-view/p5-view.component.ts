@@ -1,5 +1,4 @@
 import {
-  AfterContentInit,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
@@ -12,8 +11,7 @@ import {
 } from '@angular/core';
 import * as p5 from 'p5';
 import {ReactionDiffCalcService} from '../reaction-diff-calculation.service';
-import {ColorMapperService, ReactionDiffCellColor} from './color-mapper.service';
-import {Cell} from '../cell';
+import {ColorMapperService} from './color-mapper.service';
 
 @Component({
   selector: 'app-p5-view',
@@ -39,7 +37,7 @@ export class P5ViewComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.simWidth || this.simHeight) {
+    if (changes.simWidth || changes.simHeight || changes.scale) {
       if (this.scetch) {
         this.scetch.resizeCanvas(Math.floor(this.simWidth * this.scale), Math.floor(this.simHeight * this.scale));
       } else {
@@ -50,7 +48,6 @@ export class P5ViewComponent implements OnChanges {
 
   private initP5(p: any) {
     p.setup = () => {
-      p.pixelDensity(1);
       p.createCanvas(Math.floor(this.simWidth * this.scale), Math.floor(this.simHeight * this.scale));
     };
 
@@ -58,6 +55,7 @@ export class P5ViewComponent implements OnChanges {
       p.background(51);
       const grid = this.getGrid();
       if (grid) {
+
         const img = p.createImage(this.simWidth, this.simHeight);
         img.loadPixels();
         for (let x = 0; x < grid.length; x++) {
@@ -72,7 +70,8 @@ export class P5ViewComponent implements OnChanges {
           }
         }
         img.updatePixels();
-        p.background(img);
+        p.image(img, 0, 0);
+        p.pop();
       }
       if (this.showFps) {
         const frameRate = p.frameRate();
