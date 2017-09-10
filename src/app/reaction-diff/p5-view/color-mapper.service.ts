@@ -24,6 +24,9 @@ export class ColorMapperService {
 
 
   calcColorFor(cell: Cell, p: any): ReactionDiffCellColor {
+    if (isNaN(cell.a) || isNaN(cell.b)) {
+      return this.backgroundColor;
+    }
     const a = Math.floor(cell.a * 255);
     const b = Math.floor(cell.b * 255);
     let result = this.savedColors[a][b];

@@ -49,6 +49,7 @@ export class P5ViewComponent implements OnChanges {
   private initP5(p: any) {
     p.setup = () => {
       p.createCanvas(Math.floor(this.simWidth * this.scale), Math.floor(this.simHeight * this.scale));
+      p.frameRate(10);
     };
 
     p.draw = () => {
@@ -58,16 +59,13 @@ export class P5ViewComponent implements OnChanges {
 
         const img = p.createImage(this.simWidth, this.simHeight);
         img.loadPixels();
-        for (let x = 0; x < grid.length; x++) {
-          const column = grid[x];
-          for (let y = 0; y < column.length; y++) {
-            const pix = (x + y * p.width) * 4;
-            const cellColor = this.colorMapper.calcColorFor(column[y], p);
-            img.pixels[pix] = cellColor.r;
-            img.pixels[pix + 1] = cellColor.b;
-            img.pixels[pix + 2] = cellColor.g;
-            img.pixels[pix + 3] = 255;
-          }
+        for (let x = 0; x < grid.length - 1; x = x + 2) {
+          const pix = (x * 2);
+          const cellColor = this.colorMapper.calcColorFor({a: grid[x], b: grid[x + 1]}, p);
+          img.pixels[pix] = cellColor.r;
+          img.pixels[pix + 1] = cellColor.b;
+          img.pixels[pix + 2] = cellColor.g;
+          img.pixels[pix + 3] = 255;
         }
         img.updatePixels();
         p.image(img, 0, 0);

@@ -5,12 +5,14 @@ import {Cell} from './cell';
 import {CalcCellWeights} from './cell-weights';
 import 'rxjs/add/operator/share';
 import {ReactionDiffConfigService} from './reaction-diff-config.service';
+import {WebWorkerService} from 'angular2-web-worker';
 
 @Injectable()
 export class ReactionDiffCalcServiceFactory {
   lastCalcService: ReactionDiffCalcService;
 
-  constructor(private configService: ReactionDiffConfigService) {
+  constructor(private configService: ReactionDiffConfigService,
+              private webWorkerService: WebWorkerService) {
   }
 
   public createCalcService(width: number, height: number) {
@@ -19,17 +21,33 @@ export class ReactionDiffCalcServiceFactory {
       height,
       this.configService.calcParams$,
       this.configService.calcCellWeights$,
-      this.configService.addChemicalRadius$
+      this.configService.addChemicalRadius$,
+      this.webWorkerService
     );
     return this.lastCalcService;
   }
 }
 
-const constrain = (val: number) => Math.min(1.0, Math.max(0.0, val));
+interface CalcNextWebWorkerParam {
+  width: number;
+  height: number;
+  gridBuffer: ArrayBuffer;
+  dA: number;
+  dB: number;
+  f: number;
+  k: number;
+  w: CalcCellWeights;
+  offsetRow: number;
+  offsetLength: number;
+}
 
 export class ReactionDiffCalcService {
-  public grid: Array<Array<Cell>>;
-  public next: Array<Array<Cell>>;
+
+
+  // private gridBuffer: ArrayBuffer;
+  public grid: number[];
+  public numberThreads = 4;
+  private calcRunning: boolean;
   private diffRateA;
   private diffRateB;
   private feedRate;
@@ -41,7 +59,8 @@ export class ReactionDiffCalcService {
               private height: number,
               calcParams$: Observable<ReactionDiffCalcParams>,
               weightParams$: Observable<CalcCellWeights>,
-              addChemicalRadius$: Observable<number>) {
+              addChemicalRadius$: Observable<number>,
+              private webWorkerService: WebWorkerService) {
     calcParams$.subscribe((calcParams) => this.setCalcParams(calcParams));
     weightParams$.subscribe((weights) => this.setWeights(weights));
     addChemicalRadius$.subscribe((radius) => this.addChemicalRadius = radius);
@@ -60,38 +79,41 @@ export class ReactionDiffCalcService {
   }
 
   private init() {
+    // this.gridBuffer = new ArrayBuffer(this.width * this.height * 2);
     this.grid = [];
-    this.next = [];
 
     for (let x = 0; x < this.width; x++) {
-      this.grid[x] = [];
-      this.next[x] = [];
       for (let y = 0; y < this.height; y++) {
-        this.grid[x][y] = {a: 1, b: 0};
-        this.next[x][y] = {a: 1, b: 0};
+        this.setCell(x, y, {a: 1, b: 0});
       }
     }
 
     this.addChemical(Math.floor(this.width / 2), Math.floor(this.height / 2));
   }
 
-  public resize(newWidth: number, newHeight: number) {
-    console.log('old length:', this.grid.length, 'new length:', newWidth);
-
-    const createNewRow = () => [];
-    this.grid = this.adjustArrayLength(newWidth, this.grid, createNewRow);
-    this.next = this.adjustArrayLength(newWidth, this.next, createNewRow);
-    const createNewCell = () => {
-      return {a: 1, b: 0};
-    };
-    this.grid = this.grid.map((column) => this.adjustArrayLength(newHeight, column, createNewCell));
-    this.next = this.next.map((column) => this.adjustArrayLength(newHeight, column, createNewCell));
-    console.log('new grid length:', this.grid.length, 'should be:', newWidth);
-    this.width = newWidth;
-    this.height = newHeight;
+  private setCell(column: number, row: number, cell: Cell) {
+    const index = (column + row * this.width) * 2;
+    this.grid[index] = cell.a;
+    this.grid[index + 1] = cell.b;
   }
 
-  private adjustArrayLength<T>(width: number, array: Array<T>, elementConstructor: () => T): Array<T> {
+  private getCell(column: number, row: number): Cell {
+    const index = (column + row * this.width) * 2;
+    return {
+      a: this.grid[index], b: this.grid[index + 1]
+    };
+  }
+
+  public resize(newWidth: number, newHeight: number) {
+    console.log('old cells:', this.grid.length, 'new length:', newWidth * newHeight * 2);
+
+    // this.grid = this.adjustGridLength(newWidth * newHeight * 2, this.grid);
+
+    // this.width = newWidth;
+    // this.height = newHeight;
+  }
+
+  private adjustGridLength<T>(width: number, array: Array<number>): Array<number> {
     const difference = array.length - width;
     const upperDiff = Math.round(Math.abs(difference) / 2);
     const lowerDiff = Math.floor(Math.abs(difference) / 2);
@@ -100,13 +122,15 @@ export class ReactionDiffCalcService {
       array.splice(array.length - upperDiff, upperDiff);
     }
     if (difference < 0) {
-      const preElemsToAdd: T[] = [];
-      for (let i = 0; i < lowerDiff; i++) {
-        preElemsToAdd.push(elementConstructor());
+      const preElemsToAdd: number[] = [];
+      for (let i = 0; i < lowerDiff; i = i + 2) {
+        preElemsToAdd.push(1); // value for a;
+        preElemsToAdd.push(0); // value for b;
       }
-      const postElemsToAdd: T[] = [];
-      for (let i = 0; i < upperDiff; i++) {
-        postElemsToAdd.push(elementConstructor());
+      const postElemsToAdd: number[] = [];
+      for (let i = 0; i < upperDiff; i = i + 2) {
+        preElemsToAdd.push(1); // value for a;
+        preElemsToAdd.push(0); // value for b;
       }
       array = [...preElemsToAdd, ...array, ...postElemsToAdd];
     }
@@ -114,48 +138,146 @@ export class ReactionDiffCalcService {
     return array;
   }
 
-  public calcNext(): void {
-    for (let x = 0; x < this.grid.length; x++) {
-      const col = this.grid[x];
-      for (let y = 0; y < col.length; y++) {
-        const laplace = this.laplace(x, y);
-        this.next[x][y] = this.calcNextCell(
-          col[y],
-          this.diffRateA,
-          this.diffRateB,
-          this.feedRate,
-          this.killRate,
-          laplace.sumA,
-          laplace.sumB);
+  public calcNext() {
+    if (!this.calcRunning) {
+      this.calcRunning = true;
+      const offsetLength = this.height / this.numberThreads;
+      const calcWorkerPromises: Array<Promise<ArrayBuffer>> = [];
+
+      for (let offsetRow = 0; offsetRow < this.height; offsetRow = offsetRow + offsetLength) {
+
+        const view = new Float64Array(this.grid);
+
+        const promise: Promise<ArrayBuffer> =
+          this.webWorkerService.run(this.calcNextWorker, {
+            width: this.width,
+            height: this.height,
+            gridBuffer: view.buffer,
+            dA: this.diffRateA,
+            dB: this.diffRateB,
+            f: this.feedRate,
+            k: this.killRate,
+            w: this.weights,
+            offsetRow: offsetRow,
+            offsetLength: offsetLength
+          }, [view.buffer]);
+        calcWorkerPromises.push(promise);
+      }
+      Promise.all(calcWorkerPromises).then((result: ArrayBuffer[]) => {
+          this.grid = result.reduce((previousValue: number[], nextBuff: ArrayBuffer) => {
+            const chunk = new Float64Array(nextBuff);
+            return previousValue.concat(Array.from(chunk));
+          }, []);
+          this.calcRunning = false;
+        },
+        (error) =>
+          console.log('Error endCalculation', error)
+      );
+    }
+  }
+
+
+  private calcNextWorker(input: CalcNextWebWorkerParam): { data: ArrayBuffer, transferObject: ArrayBuffer[] } {
+    const {
+      width, height, gridBuffer, dA, dB, f,
+      k,
+      w,
+      offsetRow,
+      offsetLength
+    } = input;
+
+    const grid = new Float64Array(gridBuffer);
+
+    const nextBuf = new ArrayBuffer(width * offsetLength * 2 * Float64Array.BYTES_PER_ELEMENT);
+    const next = new Float64Array(nextBuf);
+
+    const setCell = (column: number, row: number, cell: Cell) => {
+      const index = (column + (row - offsetRow) * width) * 2;
+      next[index] = cell.a;
+      next[index + 1] = cell.b;
+    };
+
+    const getCell = (column: number, row: number): Cell => {
+      const index = (column + (row) * width) * 2;
+      return {
+        a: grid[index], b: grid[index + 1]
+      };
+    };
+
+    /*    const wX = (i) => i < 0 ? width + i : i % width;
+        const wY = (j) => j < 0 ? height + j : j % height;*/
+
+    const laplace = (x: number, y: number) => {
+
+      let sumA = 0.0;
+      let sumB = 0.0;
+
+      const add = (i, j, weight) => {
+        const cell = getCell(i, j);
+        sumA += cell.a * weight;
+        sumB += cell.b * weight;
+      };
+
+      /*add(x, y, w.center);
+      add(wX(x - 1), y, w.left);
+      add(wX(x + 1), y, w.right);
+      add(x, wY(y + 1), w.bottomCenter);
+      add(x, wY(y - 1), w.topCenter);
+      add(wX(x - 1), wY(y - 1), w.topLeft);
+      add(wX(x - 1), wY(y + 1), w.bottomLeft);
+      add(wX(x + 1), wY(y - 1), w.topRight);
+      add(wX(x + 1), wY(y + 1), w.bottomRight);*/
+
+      add(x, y, w.center);
+      add(x - 1, y, w.left);
+      add(x + 1, y, w.right);
+      add(x, y + 1, w.bottomCenter);
+      add(x, y - 1, w.topCenter);
+      add(x - 1, y - 1, w.topLeft);
+      add(x - 1, y + 1, w.bottomLeft);
+      add(x + 1, y - 1, w.topRight);
+      add(x + 1, y + 1, w.bottomRight);
+      return {sumA, sumB};
+    };
+
+    const constrain = (val: number) => Math.min(1.0, Math.max(0.0, val));
+
+    const calcNextCell = (cell: Cell,
+                          laplaceA: number,
+                          laplaceB: number): Cell => {
+
+      const abb = cell.a * cell.b * cell.b;
+
+      const nextA = cell.a +
+        (dA * laplaceA) -
+        abb +
+        (f * (1 - cell.a));
+
+      const nextB = cell.b +
+        (dB * laplaceB) +
+        abb -
+        ((k + f) * cell.b);
+
+      return {a: constrain(nextA), b: constrain(nextB)};
+    };
+
+    for (let x = 0; x < width; x++) {
+      for (let y = offsetRow; y < offsetRow + offsetLength; y++) {
+        if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
+          // the borders are not encounterned;
+          setCell(x, y, {a: 0, b: 0});
+        } else {
+          const lap = laplace(x, y);
+          setCell(x, y, calcNextCell(
+            getCell(x, y),
+            lap.sumA,
+            lap.sumB));
+        }
       }
     }
-    const tmp = this.grid;
-    this.grid = this.next;
-    this.next = tmp;
+    return {data: next.buffer, transferObject: [next.buffer]};
   }
 
-  private calcNextCell(cell: Cell,
-                       dA: number,
-                       dB: number,
-                       f: number,
-                       k: number,
-                       laplaceA: number,
-                       laplaceB: number): Cell {
-
-    const abb = cell.a * cell.b * cell.b;
-
-    const nextA = cell.a +
-      (dA * laplaceA) -
-      abb +
-      (f * (1 - cell.a));
-
-    const nextB = cell.b +
-      (dB * laplaceB) +
-      abb -
-      ((k + f) * cell.b);
-
-    return {a: constrain(nextA), b: constrain(nextB) };
-  }
 
   addChemical(x, y) {
     const halfD = this.addChemicalRadius;
@@ -164,38 +286,15 @@ export class ReactionDiffCalcService {
         const wrappedX = x + i < 0 ? this.width + i : (x + i) % this.width;
         const wrappedY = y + j < 0 ? this.height + j : (y + j) % this.height;
         const bToAdd = halfD / (i * i + j * j);
-        const cell = this.grid[wrappedX][wrappedY];
-        this.grid[wrappedX][wrappedY] = {
+        const cell = this.getCell(wrappedX, wrappedY);
+        this.setCell(wrappedX, wrappedY, {
           a: cell.a,
-          b: constrain(cell.b + bToAdd)
-        };
+          b: Math.min(1.0, Math.max(0.0, cell.b + bToAdd))
+        });
       }
     }
   }
 
-  private laplace(x: number, y: number) {
-    let sumA = 0.0;
-    let sumB = 0.0;
-
-    const wX = (i) => i < 0 ? this.width + i : i % this.width;
-    const wY = (j) => j < 0 ? this.height + j : j % this.height;
-    const add = (i, j, weight) => {
-      const cell = this.grid[i][j];
-      sumA += cell.a * weight;
-      sumB += cell.b * weight;
-    };
-    const w = this.weights;
-    add(x, y, w.center);
-    add(wX(x - 1), y, w.left);
-    add(wX(x + 1), y, w.right);
-    add(x, wY(y + 1), w.bottomCenter);
-    add(x, wY(y - 1), w.topCenter);
-    add(wX(x - 1), wY(y - 1), w.topLeft);
-    add(wX(x - 1), wY(y + 1), w.bottomLeft);
-    add(wX(x + 1), wY(y - 1), w.topRight);
-    add(wX(x + 1), wY(y + 1), w.bottomRight);
-    return {sumA, sumB};
-  }
 
   public reset() {
     this.init();
