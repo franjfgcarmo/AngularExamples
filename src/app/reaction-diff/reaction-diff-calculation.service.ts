@@ -45,7 +45,7 @@ export class ReactionDiffCalcService {
 
 
   // private gridBuffer: ArrayBuffer;
-  public grid: number[];
+  public grid: Float64Array;
   public numberThreads = 4;
   private calcRunning: boolean;
   private diffRateA;
@@ -54,6 +54,8 @@ export class ReactionDiffCalcService {
   private killRate;
   private weights: CalcCellWeights;
   private addChemicalRadius: number;
+  private isResizing = false;
+  private isAddingChemical = false;
 
   constructor(private width: number,
               private height: number,
@@ -80,7 +82,7 @@ export class ReactionDiffCalcService {
 
   private init() {
     // this.gridBuffer = new ArrayBuffer(this.width * this.height * 2);
-    this.grid = [];
+    this.grid = new Float64Array(this.width * this.height * 2);
 
     for (let x = 0; x < this.width; x++) {
       for (let y = 0; y < this.height; y++) {
@@ -91,93 +93,104 @@ export class ReactionDiffCalcService {
     this.addChemical(Math.floor(this.width / 2), Math.floor(this.height / 2));
   }
 
-  private setCell(column: number, row: number, cell: Cell) {
-    const index = (column + row * this.width) * 2;
-    this.grid[index] = cell.a;
-    this.grid[index + 1] = cell.b;
+  private setCell(column: number, row: number, cell: Cell, width: number = this.width, arrayToSet: Float64Array = this.grid) {
+    const index = (column + row * width) * 2;
+    arrayToSet[index] = cell.a;
+    arrayToSet[index + 1] = cell.b;
   }
 
-  private getCell(column: number, row: number): Cell {
-    const index = (column + row * this.width) * 2;
+  private getCell(column: number, row: number, width: number = this.width, arrayToGet: Float64Array = this.grid): Cell {
+    const index = (column + row * width) * 2;
     return {
-      a: this.grid[index], b: this.grid[index + 1]
+      a: arrayToGet[index], b: arrayToGet[index + 1]
     };
   }
 
   public resize(newWidth: number, newHeight: number) {
-    console.log('old cells:', this.grid.length, 'new length:', newWidth * newHeight * 2);
-
-    // this.grid = this.adjustGridLength(newWidth * newHeight * 2, this.grid);
-
-    // this.width = newWidth;
-    // this.height = newHeight;
+    this.isResizing = true;
+    this.grid = this.adjustGridLength(newWidth, newHeight);
+    this.width = newWidth;
+    this.height = newHeight;
+    this.isResizing = false;
   }
 
-  private adjustGridLength<T>(width: number, array: Array<number>): Array<number> {
-    const difference = array.length - width;
-    const upperDiff = Math.round(Math.abs(difference) / 2);
-    const lowerDiff = Math.floor(Math.abs(difference) / 2);
-    if (difference > 0) {
-      array.splice(0, lowerDiff);
-      array.splice(array.length - upperDiff, upperDiff);
-    }
-    if (difference < 0) {
-      const preElemsToAdd: number[] = [];
-      for (let i = 0; i < lowerDiff; i = i + 2) {
-        preElemsToAdd.push(1); // value for a;
-        preElemsToAdd.push(0); // value for b;
-      }
-      const postElemsToAdd: number[] = [];
-      for (let i = 0; i < upperDiff; i = i + 2) {
-        preElemsToAdd.push(1); // value for a;
-        preElemsToAdd.push(0); // value for b;
-      }
-      array = [...preElemsToAdd, ...array, ...postElemsToAdd];
-    }
+  private adjustGridLength<T>(newWidth: number, newHeight: number): Float64Array {
 
-    return array;
+    const adjustedGrid = new Float64Array(newHeight * newWidth * 2);
+
+    const differenceHeight = this.height - newHeight;
+    const offsetHeight = Math.floor(differenceHeight / 2);
+    const differenceWidth = this.width - newWidth;
+    const offsetWidth = Math.floor(differenceWidth / 2);
+
+    for (let x = 0; x < newWidth; x++) {
+      for (let y = 0; y < newHeight; y++) {
+        if ((x >= offsetWidth && (offsetWidth + x) < this.width) || (y >= offsetHeight && y + offsetHeight < this.height)) {
+          const cell = this.getCell(x - offsetWidth, y - offsetHeight);
+          this.setCell(x, y, cell, newWidth, adjustedGrid);
+          continue;
+        }
+        this.setCell(x, y, {a: 1, b: 0}, newWidth, adjustedGrid);
+      }
+    }
+    return adjustedGrid;
   }
 
   public calcNext() {
-    if (!this.calcRunning) {
-      this.calcRunning = true;
-      const offsetLength = this.height / this.numberThreads;
-      const calcWorkerPromises: Array<Promise<ArrayBuffer>> = [];
-
-      for (let offsetRow = 0; offsetRow < this.height; offsetRow = offsetRow + offsetLength) {
-
-        const view = new Float64Array(this.grid);
-
-        const promise: Promise<ArrayBuffer> =
-          this.webWorkerService.run(this.calcNextWorker, {
-            width: this.width,
-            height: this.height,
-            gridBuffer: view.buffer,
-            dA: this.diffRateA,
-            dB: this.diffRateB,
-            f: this.feedRate,
-            k: this.killRate,
-            w: this.weights,
-            offsetRow: offsetRow,
-            offsetLength: offsetLength
-          }, [view.buffer]);
-        calcWorkerPromises.push(promise);
-      }
-      Promise.all(calcWorkerPromises).then((result: ArrayBuffer[]) => {
-          this.grid = result.reduce((previousValue: number[], nextBuff: ArrayBuffer) => {
-            const chunk = new Float64Array(nextBuff);
-            return previousValue.concat(Array.from(chunk));
-          }, []);
-          this.calcRunning = false;
-        },
-        (error) =>
-          console.log('Error endCalculation', error)
-      );
+    if (this.calcRunning || this.isResizing || this.isAddingChemical) {
+      return;
     }
+    this.calcRunning = true;
+    const offsetLength = Math.floor(this.height / this.numberThreads);
+    const calcWorkerPromises: Array<Promise<Float64Array>> = [];
+    const bufferBytes = this.width * this.height * 2 * Float64Array.BYTES_PER_ELEMENT;
+
+    for (let offsetRow = 0; offsetRow < this.height; offsetRow = offsetRow + offsetLength) {
+      const arrayBuffer = new ArrayBuffer(bufferBytes);
+      const view = new Float64Array(arrayBuffer);
+      view.set(this.grid);
+      const offsetLengthAdjusted = (offsetRow + offsetLength) > this.height ? this.height - offsetRow : offsetLength;
+
+      console.log('startWorker: ' + performance.now());
+      const promise: Promise<ArrayBuffer> =
+        this.webWorkerService.run(this.calcNextWorker, {
+          width: this.width,
+          height: this.height,
+          gridBuffer: view.buffer,
+          dA: this.diffRateA,
+          dB: this.diffRateB,
+          f: this.feedRate,
+          k: this.killRate,
+          w: this.weights,
+          offsetRow: offsetRow,
+          offsetLength: offsetLengthAdjusted
+        }, [view.buffer]);
+      calcWorkerPromises.push(promise.then(buffer => {
+        console.log('received result chunk: ' + performance.now());
+        return new Float64Array(buffer);
+      }));
+    }
+    Promise.all(calcWorkerPromises).then((result: Float64Array[]) => {
+        if (this.isResizing || this.isAddingChemical) {
+          this.calcRunning = false;
+          return;
+        }
+        this.grid = new Float64Array(this.grid.length);
+        let offset = 0;
+        result.forEach((chunk: Float64Array) => {
+          console.log('result chunk lengths', chunk.length);
+          this.grid.set(chunk, offset);
+          offset += chunk.length;
+        }, []);
+
+        this.calcRunning = false;
+      },
+      (error) =>
+        console.log('Error endCalculation', error)
+    );
   }
 
-
-  private calcNextWorker(input: CalcNextWebWorkerParam): { data: ArrayBuffer, transferObject: ArrayBuffer[] } {
+  private calcNextWorker(input: CalcNextWebWorkerParam): { data: ArrayBuffer, transferList: ArrayBuffer[] } {
     const {
       width, height, gridBuffer, dA, dB, f,
       k,
@@ -185,7 +198,7 @@ export class ReactionDiffCalcService {
       offsetRow,
       offsetLength
     } = input;
-
+    console.log('worker: buffer received: ' + performance.now());
     const grid = new Float64Array(gridBuffer);
 
     const nextBuf = new ArrayBuffer(width * offsetLength * 2 * Float64Array.BYTES_PER_ELEMENT);
@@ -275,11 +288,13 @@ export class ReactionDiffCalcService {
         }
       }
     }
-    return {data: next.buffer, transferObject: [next.buffer]};
+    console.log('worker: send back: ' + performance.now());
+    return {data: next.buffer, transferList: [next.buffer]};
   }
 
 
   addChemical(x, y) {
+    this.isAddingChemical = true;
     const halfD = this.addChemicalRadius;
     for (let i = -halfD; i < halfD; i++) {
       for (let j = -halfD; j < halfD; j++) {
@@ -293,6 +308,7 @@ export class ReactionDiffCalcService {
         });
       }
     }
+    this.isAddingChemical = false;
   }
 
 

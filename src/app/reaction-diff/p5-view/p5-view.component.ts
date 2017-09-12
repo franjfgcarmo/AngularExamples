@@ -49,7 +49,7 @@ export class P5ViewComponent implements OnChanges {
   private initP5(p: any) {
     p.setup = () => {
       p.createCanvas(Math.floor(this.simWidth * this.scale), Math.floor(this.simHeight * this.scale));
-      p.frameRate(10);
+      p.frameRate(30);
     };
 
     p.draw = () => {
