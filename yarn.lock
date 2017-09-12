@@ -175,13 +175,6 @@
     magic-string "^0.22.3"
     source-map "^0.5.6"
 
-"@types/aframe@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@types/aframe/-/aframe-0.5.0.tgz#8bf5917794b085980dd19514791b636766012cd5"
-  dependencies:
-    "@types/three" "*"
-    "@types/tween.js" "*"
-
 "@types/gl-matrix@^2.2.34":
   version "2.2.34"
   resolved "https://registry.yarnpkg.com/@types/gl-matrix/-/gl-matrix-2.2.34.tgz#8d1b5557d9143e9692b7b2083c56a5adc8113104"
@@ -207,20 +200,6 @@
 "@types/selenium-webdriver@^2.53.35", "@types/selenium-webdriver@~2.53.39":
   version "2.53.42"
   resolved "https://registry.yarnpkg.com/@types/selenium-webdriver/-/selenium-webdriver-2.53.42.tgz#74cb77fb6052edaff2a8984ddafd88d419f25cac"
-
-"@types/three@*":
-  version "0.84.20"
-  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.84.20.tgz#1c47dc40f3964b9832036b77837f19e9a6130bba"
-  dependencies:
-    "@types/webvr-api" "*"
-
-"@types/tween.js@*":
-  version "16.6.1"
-  resolved "https://registry.yarnpkg.com/@types/tween.js/-/tween.js-16.6.1.tgz#829bc0007c72fe3fe2aa06f782dcb4c19dc3443f"
-
-"@types/webvr-api@*":
-  version "0.0.31"
-  resolved "https://registry.yarnpkg.com/@types/webvr-api/-/webvr-api-0.0.31.tgz#f6061fe88a035d34a8b6a0c55f8758901ec8a08e"
 
 abbrev@1:
   version "1.1.0"
