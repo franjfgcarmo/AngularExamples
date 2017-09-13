@@ -281,10 +281,6 @@ amdefine@>=0.0.4:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
 
-angular2-web-worker@superheroicCoding/angular2-web-worker:
-  version "0.0.7"
-  resolved "https://codeload.github.com/superheroicCoding/angular2-web-worker/tar.gz/4a62bf95118be920824b11cf5400d5ff77d9ac16"
-
 ansi-escapes@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ansi-escapes/-/ansi-escapes-2.0.0.tgz#5bae52be424878dd9783e8910e3fc2922e83c81b"

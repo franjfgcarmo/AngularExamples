@@ -17,7 +17,16 @@ import {FormsModule} from '@angular/forms';
 import {RaiseCardDirective} from './raise-card.directive';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/scan';
+import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/of';
+import 'rxjs/add/observable/from';
+import 'rxjs/add/observable/interval';
+import 'rxjs/add/operator/do';
+import 'rxjs/add/observable/range';
+import 'rxjs/add/observable/zip';
+import 'rxjs/add/operator/zipAll';
+import 'rxjs/add/operator/filter';
+import '../rx/add/operator/map-worker';
 
 @NgModule({
   exports: [

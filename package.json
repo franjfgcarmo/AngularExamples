@@ -23,7 +23,6 @@
     "@angular/platform-browser": "^4.2.4",
     "@angular/platform-browser-dynamic": "^4.2.4",
     "@angular/router": "^4.2.4",
-    "angular2-web-worker": "superheroicCoding/angular2-web-worker",
     "core-js": "^2.4.1",
     "gl-matrix": "^2.4.0",
     "p5": "^0.5.14",

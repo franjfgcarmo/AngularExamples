@@ -1,12 +1,11 @@
 import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {ReactionDiffCalcService, ReactionDiffCalcServiceFactory} from './reaction-diff-calculation.service';
-import 'rxjs/add/operator/do';
+
 import {CalcCellWeights} from './cell-weights';
 import {ReactionDiffConfigService} from './reaction-diff-config.service';
 import {ReactionDiffCalcParams} from './reaction-diff-calc-params';
 import {Observable} from 'rxjs/Observable';
 import {MdSelectChange} from '@angular/material';
-
 
 @Component({
   selector: 'app-reaction-diff',
@@ -21,12 +20,15 @@ export class ReactionDiffComponent implements OnInit {
   public showFps = true;
   public width = 200;
   public height = 200;
+  public numberWebWorkers: number;
   public cellWeights$: Observable<CalcCellWeights>;
   public calcParams: ReactionDiffCalcParams;
   public examples: string[];
   public selectedExample: string;
   public addChemicalRadius: number;
   public scale = 1;
+  calculationTime$: Observable<number>;
+
 
   constructor(private calcFactory: ReactionDiffCalcServiceFactory, private configService: ReactionDiffConfigService) {
   }
@@ -35,6 +37,7 @@ export class ReactionDiffComponent implements OnInit {
     this.examples = this.configService.exampleOptions;
 
     this.calcService = this.calcFactory.createCalcService(this.width, this.height);
+    this.numberWebWorkers = this.calcService.numberThreads;
     this.cellWeights$ = this.configService.calcCellWeights$;
     this.configService.selectedExample$.subscribe((example) =>
       this.selectedExample = example
@@ -45,6 +48,16 @@ export class ReactionDiffComponent implements OnInit {
     this.configService.addChemicalRadius$.subscribe((radius) =>
       this.addChemicalRadius = radius
     );
+
+    this.calculationTime$ = Observable.interval(1000)
+      .flatMap((ignored) => Observable.of(performance.getEntriesByName('calcNext')))
+      .map((measures: PerformanceMeasure[]) => {
+        if (measures.length === 0) {
+          return 0;
+        }
+        return measures
+          .reduce((acc, next) => acc + next.duration / measures.length, 0);
+      });
   }
 
   public toggleRunSim(): void {
@@ -84,5 +97,9 @@ export class ReactionDiffComponent implements OnInit {
   public updateAddChemicalRadius() {
     console.log(this.addChemicalRadius);
     this.configService.updateAddChemicalRadius(this.addChemicalRadius);
+  }
+
+  updateNumberOfWebWorkers() {
+    this.calcService.updateNumberThreads(this.numberWebWorkers);
   }
 }
