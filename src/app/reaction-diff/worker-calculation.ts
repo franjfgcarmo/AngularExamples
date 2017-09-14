@@ -113,7 +113,8 @@ export const calcNextDiffStep = function (input: CalcNextWebWorkerParam): Worker
       }
     }
   }
-  return {data: {buffer: next.buffer, offsetRow}, transferList: [next.buffer]};
+  // we grid buffer to release resources. Otherwise the memory is eaten up really quick.
+  return {data: {buffer: next.buffer, offsetRow}, transferList: [next.buffer, gridBuffer ]};
 };
 
 export interface AddChemicalsParams {
