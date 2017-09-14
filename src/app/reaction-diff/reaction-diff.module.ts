@@ -7,7 +7,6 @@ import {SharedModule} from '../shared/shared.module';
 import {WeightsConfigComponent} from './weights-config/weights-config.component';
 import {ReactionDiffConfigService} from './reaction-diff-config.service';
 import {ColorMapperService} from './p5-view/color-mapper.service';
-import { WebWorkerService } from 'angular2-web-worker';
 
 @NgModule({
   imports: [
@@ -16,6 +15,6 @@ import { WebWorkerService } from 'angular2-web-worker';
   ],
   declarations: [ReactionDiffComponent, P5ViewComponent, WeightsConfigComponent],
   exports: [ReactionDiffComponent],
-  providers: [ReactionDiffCalcServiceFactory, ReactionDiffConfigService, ColorMapperService, WebWorkerService]
+  providers: [ReactionDiffCalcServiceFactory, ReactionDiffConfigService, ColorMapperService]
 })
 export class ReactionDiffModule { }

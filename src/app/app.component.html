@@ -2,24 +2,11 @@
 <md-sidenav-container>
   <md-sidenav class="navigationSidenav" #sidenav>
     <md-nav-list>
-      <md-list-item>
-        <md-icon mdListIcon>play_arrow</md-icon>
-        <a (click)="sidenav.close()" routerLink="home" routerLinkActive="active">
-          Home
-        </a>
-      </md-list-item>
-      <md-list-item>
-        <md-icon mdListIcon>play_arrow</md-icon>
-        <a (click)="sidenav.close()" routerLink="poisson" routerLinkActive="active">
-          Poisson Distribution Algorithm
-        </a>
-      </md-list-item>
-      <md-list-item>
-        <md-icon mdListIcon>play_arrow</md-icon>
-        <a (click)="sidenav.close()" routerLink="reactionDiff" routerLinkActive="active">
-          Reaction Diffusion Algorithm
-        </a>
-      </md-list-item>
+      <app-nav-item *ngFor="let route of routerLinks"
+                    (click)="sidenav.close()"
+                    [path]="route.path"
+                    [linkText]="route.linkText">
+      </app-nav-item>
     </md-nav-list>
   </md-sidenav>
   <md-toolbar color="accent">

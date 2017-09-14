@@ -57,7 +57,6 @@ export class P5ViewComponent implements AfterContentInit {
     p.setup = () => {
       p.createCanvas(this.width, this.height, 'webgl');
       p.frameRate(60);
-
     };
 
     p.draw = () => {
@@ -151,9 +150,6 @@ export class P5ViewComponent implements AfterContentInit {
 
   drawCircle(circle: Circle, step: number, p: p5): void {
     p.push();
-// const {h, s, l} = circle.getColor(step);
-// p.colorMode('hsl');
-// p.specularMaterial(h, s, l, 0.1);
     p.translate(Math.floor(circle.pos.x), Math.floor(circle.pos.y), 10);
     p.rotate(circle.pos.magFast(), p.createVector(circle.pos.x, circle.pos.y, 0));
 

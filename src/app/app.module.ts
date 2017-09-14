@@ -7,12 +7,15 @@ import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {InfoComponent} from './info/info.component';
 import {TechnologyComponent} from './info/technology/technology.component';
+import {NavItemComponent} from './nav-item/nav-item.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     InfoComponent,
     TechnologyComponent,
+    NavItemComponent,
+    NavItemComponent
   ],
   imports: [
     BrowserModule,

@@ -1,4 +1,5 @@
 import {Component} from '@angular/core';
+import {appRoutes, routes} from './app-routing.module';
 
 
 @Component({
@@ -8,5 +9,6 @@ import {Component} from '@angular/core';
 })
 export class AppComponent {
   title = 'POISSON';
+  routerLinks = routes.filter((route) => route.linkText);
 }
 
