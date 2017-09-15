@@ -29,7 +29,6 @@ export class ReactionDiffComponent implements OnInit {
   public scale = 1;
   calculationTime$: Observable<number>;
 
-
   constructor(private calcFactory: ReactionDiffCalcServiceFactory, private configService: ReactionDiffConfigService) {
   }
 

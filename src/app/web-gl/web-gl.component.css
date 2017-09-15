@@ -1,0 +1,9 @@
+:host {
+  height: 100%;
+  width: calc(100vw - 16px);
+}
+
+:host >>> canvas {
+  width: calc(100vw - 16px);
+  height: calc(100vh - 16px - 64px);
+}
