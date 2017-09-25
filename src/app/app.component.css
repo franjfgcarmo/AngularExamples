@@ -1,25 +1,34 @@
-:host {
-  display: flex;
-  flex-direction: column;
-  align-content: space-between;
-  align-items: stretch;
-  width: 100vw;
-}
-
 .navigationSidenav {
   max-width: 300px;
 }
 
-
-
-.simContainer {
-  width: 100vw;
-  display: flex;
-  flex-direction: row;
-  align-content: space-around;
-  align-items: center;
+.pageGrid {
+  display: grid;
+  grid-template-rows: 64px auto;
+  grid-template-columns: auto;
+  grid-template-areas: "header" "main";
+  grid-column-gap: 10px;
+  grid-row-gap: 15px;
 }
 
-app-poisson {
-  flex: 1 1 100%;
+@media only screen and (min-width: 768px) {
+  .pageGrid {
+    display: grid;
+    grid-template-rows: 64px auto auto;
+    grid-template-columns: auto auto;
+    grid-template-areas:
+      "header" "header"
+      "main" "main"
+      "main" "main"
+  }
 }
+
+.pageTitle {
+  grid-area: header;
+}
+
+.pageContent {
+  grid-area: main;
+}
+
+

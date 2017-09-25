@@ -1,17 +1,16 @@
-:host {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: stretch;
-  align-content: space-around;
+
+.diffContent {
+  display: grid;
+  grid-column-gap: 10px;
+  grid-row-gap: 15px;
 }
 
-md-card {
-  margin: 10px;
-}
-
-md-card.parameters {
-  flex-flow: column;
+@media only screen and (min-width: 768px) {
+  .diffContent {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto;
+  }
 }
 
 md-input-container {

@@ -4,7 +4,6 @@ import {ReactionDiffCalcParams} from './reaction-diff-calc-params';
 import {Cell} from './cell';
 import {CalcCellWeights} from './cell-weights';
 import {ReactionDiffConfigService} from './reaction-diff-config.service';
-import {WebWorkerService} from 'angular2-web-worker';
 import {Subject} from 'rxjs/Subject';
 import {Subscription} from 'rxjs/Subscription';
 import {addChemicals, AddChemicalsParams, calcNextDiffStep} from './worker-calculation';

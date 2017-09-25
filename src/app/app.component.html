@@ -9,18 +9,21 @@
       </app-nav-item>
     </md-nav-list>
   </md-sidenav>
-  <md-toolbar color="accent">
-    <button md-icon-button (click)="sidenav.open()">
-      <md-icon>menu</md-icon>
-    </button>
-    <div>
-      <span>SuperheroicCoding Demos</span>
-      <br>
-      <span class="mat-subheading-2">
+  <section class="pageGrid">
+    <md-toolbar class="pageTitle" color="accent">
+      <button md-icon-button (click)="sidenav.open()">
+        <md-icon>menu</md-icon>
+      </button>
+      <div>
+        <span>SuperheroicCoding Demos</span>
+        <br>
+        <span class="mat-subheading-2">
       Click on the menu icon to choose examples.
     </span>
+      </div>
+    </md-toolbar>
+    <div class="pageContent">
+    <router-outlet></router-outlet>
     </div>
-  </md-toolbar>
-
-  <router-outlet></router-outlet>
+  </section>
 </md-sidenav-container>
