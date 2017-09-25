@@ -18,6 +18,10 @@
       "tsconfig": "tsconfig.app.json",
       "testTsconfig": "tsconfig.spec.json",
       "prefix": "app",
+      "scripts": [
+        "../node_modules/three/build/three.js",
+        "../node_modules/three/examples/js/controls/OrbitControls.js"
+      ],
       "styles": [
         "styles.css"
       ],
