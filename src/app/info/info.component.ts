@@ -14,6 +14,7 @@ export class InfoComponent implements OnInit {
     new Technology('Angular Material', 'http://angular.material.io/', 'assets/logos/angular-material.svg'),
     new Technology('Typescript', 'http://www.typescriptlang.org/', 'assets/logos/typescript.svg'),
     new Technology('p5js', 'https://p5js.org', 'assets/logos/p5.svg'),
+    new Technology('three.js', 'https://threejs.org/', 'assets/logos/three-js.png')
   ];
 
   constructor() {
