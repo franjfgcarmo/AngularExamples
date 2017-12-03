@@ -13,33 +13,5 @@
 <body class="mat-app-background">
   <app-root></app-root>
 </body>
-<script id="mandelbrot-vertex" type="x-shader/x-vertex">
-            precision highp float;
-            uniform float zoom;
-            varying vec2 pos;
-            void main () {
-                pos = position.xy * zoom;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-</script>
-<script id="mandelbrot-fragment" type="x-shader/x-fragment">
-            precision highp float;
-            varying vec2 pos;
-            void main () {
-                vec2 fractal = pos;
-                for (int i = 0; i < 20; i++) {
-                    fractal = pos + vec2(
-                        fractal.x * fractal.x - fractal.y * fractal.y,
-                        2.0 * fractal.x * fractal.y
-                    );
-                    // interpolate fractal color over position
-                    gl_FragColor = vec4(fractal, 0, 1);
-                    // if outside of fractal, use black
-                    if (length(fractal) > 1.5) {
-                        gl_FragColor = vec4(0, 0, 0, 1);
-                    }
-                }
-            }
-</script>
 
 </html>

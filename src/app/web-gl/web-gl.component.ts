@@ -1,27 +1,30 @@
-import {AfterContentInit, Component, ContentChild, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
+import {AfterContentInit, Component, ElementRef, EventEmitter, OnInit, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 
 import {
   AmbientLight,
   BoxGeometry,
-  Clock, Color,
+  Clock,
+  Color,
   FogExp2,
   Geometry,
-  Line,
-  LineBasicMaterial, Material,
+  Material,
   Mesh,
   MeshBasicMaterial,
   MeshPhongMaterial,
-  Object3D,
   PerspectiveCamera,
   PlaneGeometry,
   PointLight,
-  Scene, ShaderMaterial,
+  Scene,
+  ShaderMaterial,
   SphereGeometry,
   SpotLight,
-  Vector3,
+  UniformsLib,
+  UniformsUtils,
   WebGLRenderer
 } from 'three';
+import {MandelbrotFragment, MandelbrotVertex} from './mandelbrot-shader';
+
 
 const PIHALF = Math.PI / 2;
 
@@ -107,23 +110,14 @@ export class WebGlComponent implements OnInit, AfterContentInit {
     this.scene.add(pointLight);
 
     const geometry = new BoxGeometry(1, 1, 1);
-     const material = new MeshPhongMaterial({color: 0x6611dd, specular: 0x009900, shininess: 30, flatShading: true});
+    const material = new MeshPhongMaterial({color: 0x6611dd, specular: 0x009900, shininess: 30, flatShading: true});
     this.cube = new Mesh(geometry, material);
     this.cube.castShadow = true;
     this.cube.receiveShadow = true;
     this.cube.position.y = 0.75;
     this.scene.add(this.cube);
 
-    const lineMaterial = new LineBasicMaterial({color: 0x0000ff});
-    const lineGeometry = new Geometry();
-    lineGeometry.vertices.push(new Vector3(-1, 0, 0));
-    lineGeometry.vertices.push(new Vector3(0, 1, 0));
-    lineGeometry.vertices.push(new Vector3(1, 0, 0));
-    const line = new Line(lineGeometry, lineMaterial);
-    line.receiveShadow = true;
-    this.scene.add(line);
-
-    this.checkerBoard = this.createCheckerBoard();
+    this.checkerBoard = this.createMandlebrotPlane();
     this.checkerBoard.rotation.x = -PIHALF;
     this.checkerBoard.receiveShadow = true;
     this.scene.add(this.checkerBoard);
@@ -131,58 +125,76 @@ export class WebGlComponent implements OnInit, AfterContentInit {
     this.lastFrameTime = 0;
 
     this.camera.lookAt(this.cube.position);
+
     this.animate(0);
   }
 
   private createLight(color) {
-    const pointLight = new PointLight(color, 1, 30);
+    const pointLight = new PointLight(color);
     pointLight.castShadow = true;
     pointLight.shadow.camera.near = 1;
     pointLight.shadow.camera.far = 60;
     pointLight.shadow.bias = -0.005; // reduces self-shadowing on double-sided objects
-    const geometry = new SphereGeometry(0.3, 12, 6);
-    const material = new MeshBasicMaterial({color: color});
+    const geometry = new SphereGeometry(12);
+    const material = new MeshBasicMaterial({
+      color: color
+    });
     const sphere = new Mesh(geometry, material);
+    sphere.name = 'sphere';
     pointLight.add(sphere);
     return pointLight;
   }
 
 
   private animate(time?: number) {
-    requestAnimationFrame((nextTime) => this.animate(nextTime));
+
     this.resize();
 
     const frameTime = this.clock.getDelta();
-    /*(this.cube.material as Material[]).forEach((material) => {
-      if (material instanceof ShaderMaterial) {
-        material.uniforms.zoom.value = Math.cos(frameTime / 500) + 1.5;
-      }
-    });*/
+    (this.checkerBoard.material as ShaderMaterial)
+      .uniforms.zoom.value = Math.cos(time * 0.0001) * 0.1;
+
     this.cube.rotation.x += 0.5 * frameTime;
     this.cube.rotation.y += 0.5 * frameTime;
 
     this.pointLight.position.x = Math.sin(time * 0.0007) * 3;
     this.pointLight.position.y = 3 + Math.cos(time * 0.0005) * 2;
     this.pointLight.position.z = Math.cos(time * 0.0003) * 3;
-    this.controls.update(frameTime);
+    const pointLightColor = new Color(
+      (Math.cos(time * 0.0003) + 1) * 0.5,
+      (Math.sin(time * 0.0005) + 1) * 0.5,
+      (Math.cos(time * 0.0007) + 1) * 0.5
+    );
+
+    const pointLightSphere = (this.pointLight.getObjectByName('sphere') as Mesh);
+
+    const material = new MeshBasicMaterial({
+      color: pointLightColor.getHex()
+    });
+
+    pointLightSphere.material = material;
+
+    const sphere = new Mesh(pointLightSphere.geometry as Geometry, material);
+    sphere.name = 'sphere';
+
+    this.pointLight.color.set(pointLightColor);
 
     this.renderer.render(this.scene, this.camera);
+    requestAnimationFrame((nextTime) => this.animate(nextTime));
   }
 
   private createCheckerBoard(segments: number = 20): Mesh {
-    const geometry = new PlaneGeometry(20, 20, segments, segments);
+    const geometry = new PlaneGeometry(100, 100, segments, segments);
 
-  /*  const materialEven = new MeshPhongMaterial({color: 0xccccfc, specular: 0x009900, shininess: 15, flatShading: true});
-    const materialOdd = new MeshPhongMaterial({color: 0x444464, specular: 0x009900, shininess: 10, flatShading: true});*/
-    // const materials = [materialEven, materialOdd];
-    const materials = [this.createMandelbrotMaterial()];
+    const materialEven = new MeshPhongMaterial({color: 0xccccfc, specular: 0x009900, shininess: 15, flatShading: true});
+    const materialOdd = new MeshPhongMaterial({color: 0x444464, specular: 0x009900, shininess: 10, flatShading: true});
+    const materials = [materialEven, materialOdd];
 
     for (let x = 0; x < segments; x++) {
       for (let y = 0; y < segments; y++) {
         const i = x * segments + y;
         const j = 2 * i;
-        // geometry.faces[j].materialIndex = geometry.faces[j + 1].materialIndex = (x + y) % 2;
-        geometry.faces[j].materialIndex = geometry.faces[j + 1].materialIndex = 0;
+        geometry.faces[j].materialIndex = geometry.faces[j + 1].materialIndex = (x + y) % 2;
       }
     }
 
@@ -190,13 +202,22 @@ export class WebGlComponent implements OnInit, AfterContentInit {
     return checkerBoard;
   }
 
+  private createMandlebrotPlane(): Mesh {
+    return new Mesh(new PlaneGeometry(100, 100, 1, 1), this.createMandelbrotMaterial());
+  }
+
   private createMandelbrotMaterial(): Material {
+    const uniforms = UniformsUtils
+      .merge([
+        UniformsLib['lights'],
+        {zoom: {type: 'f', value: 0.05}}
+      ]);
+
     return new ShaderMaterial({
-      uniforms: {
-        zoom: {type: 'f', value: 1.01}
-      },
-      vertexShader: document.getElementById('mandelbrot-vertex').innerHTML,
-      fragmentShader: document.getElementById('mandelbrot-fragment').innerHTML
+      uniforms,
+      vertexShader: MandelbrotVertex,
+      fragmentShader: MandelbrotFragment,
+      lights: true,
     });
   }
 
