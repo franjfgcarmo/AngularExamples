@@ -1,0 +1,33 @@
+<mat-toolbar color="primary">
+  <mat-toolbar-row>
+    <div>Neural-Networks!</div>
+  </mat-toolbar-row>
+</mat-toolbar>
+<mat-grid-list cols="3">
+  <mat-grid-tile colspan="2">
+    <mat-card class="perceptron-card">
+      <mat-card-title>A simple Perceptron</mat-card-title>
+      <mat-card-content>
+        <div class="perceptron-canvas" #perceptronCanvas></div>
+      </mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <mat-card class="action-card">
+      <mat-card-header>Actions</mat-card-header>
+      <mat-card-actions>
+        <button mat-button class="mat-raised-button" color="accent" (click)="train()">Train 10 Points</button>
+        <button mat-button class="mat-raised-button" color="accent" (click)="test()">Test against data</button>
+      </mat-card-actions>
+    </mat-card>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <mat-card class="weights-card">
+      <mat-card-header>Input Weights</mat-card-header>
+      <mat-card-content>
+        <div>X: {{perceptron.weights[0]}} </div>
+        <div>Y: {{perceptron.weights[1]}} </div>
+      </mat-card-content>
+    </mat-card>
+  </mat-grid-tile>
+</mat-grid-list>

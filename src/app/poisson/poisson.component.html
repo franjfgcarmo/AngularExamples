@@ -1,11 +1,13 @@
-<md-toolbar color="primary">
-  <span>Poisson Distribution</span>
-  <md-toolbar-row>
+<mat-toolbar color="primary">
+  <mat-toolbar-row>
+    <span>Poisson Distribution</span>
+  </mat-toolbar-row>
+  <mat-toolbar-row>
     <div>
       <span class="mat-subheading-2">Evenly distribute balls of wood on a plane</span><br>
     </div>
-  </md-toolbar-row>
-</md-toolbar>
+  </mat-toolbar-row>
+</mat-toolbar>
 
 <!-- <app-canvas-view
    [simWidth]="simWidth"
@@ -18,10 +20,10 @@
  >
  </app-canvas-view>-->
 <div class="simContent">
-  <md-card>
-    <md-card-title>Simulation</md-card-title>
-    <md-card-subtitle>Click to add balls as seed</md-card-subtitle>
-    <md-card-subtitle>Watch the lightning. It always comes from your mouse pointer</md-card-subtitle>
+  <mat-card>
+    <mat-card-title>Simulation</mat-card-title>
+    <mat-card-subtitle>Click to add balls as seed</mat-card-subtitle>
+    <mat-card-subtitle>Watch the lightning. It always comes from your mouse pointer</mat-card-subtitle>
     <app-p5-view
       [width]="width"
       [height]="height"
@@ -30,7 +32,7 @@
       (onAddObject)="addPoint($event)"
       (onReadyToPaint)="calculate()">
     </app-p5-view>
-  </md-card>
+  </mat-card>
   <app-sim-controls (playChanged)="setPlay($event)" (onReset)="reset()"></app-sim-controls>
 </div>
 

@@ -5,7 +5,7 @@ import {WorkerPostParams} from '../rx/operator/map-worker';
 export interface CalcNextWebWorkerParam {
   width: number;
   height: number;
-  gridBuffer: ArrayBuffer;
+  gridBuffer: ArrayBufferLike;
   dA: number;
   dB: number;
   f: number;
@@ -16,7 +16,7 @@ export interface CalcNextWebWorkerParam {
 }
 
 
-export const calcNextDiffStep = function (input: CalcNextWebWorkerParam): WorkerPostParams<{ buffer: ArrayBuffer, offsetRow: number }> {
+export const calcNextDiffStep = function (input: CalcNextWebWorkerParam): WorkerPostParams<{ buffer: ArrayBufferLike, offsetRow: number }> {
   const {
     width, height, gridBuffer, dA, dB, f,
     k,
@@ -49,7 +49,6 @@ export const calcNextDiffStep = function (input: CalcNextWebWorkerParam): Worker
 
     let sumA = 0.0;
     let sumB = 0.0;
-
     const add = (i, j, weight) => {
       const cell = getCell(i, j);
       sumA += cell.a * weight;
@@ -121,12 +120,12 @@ export interface AddChemicalsParams {
   x: number;
   y: number;
   r: number;
-  gridBuffer: ArrayBuffer;
+  gridBuffer: ArrayBufferLike;
   width: number;
   height: number;
 }
 
-export const addChemicals = function (data: AddChemicalsParams): WorkerPostParams<ArrayBuffer> {
+export const addChemicals = function (data: AddChemicalsParams): WorkerPostParams<ArrayBufferLike> {
   const grid = new Float32Array(data.gridBuffer);
   const {x, y, r, width, height} = data;
 

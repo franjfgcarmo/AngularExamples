@@ -20,6 +20,11 @@ export const routes: AppRoute[] = [
     linkText: 'Reaction Diffusion Algorithm'
   },
   {path: 'webGl', loadChildren: 'app/web-gl/web-gl.module#WebGlModule', linkText: 'WebGl Examples'},
+  {
+    path: 'neuralNetwork',
+    loadChildren: 'app/neural-network/neural-network.module#NeuralNetworkModule',
+    linkText: 'Neural Networks'
+  },
   {path: '**', redirectTo: 'home'}
 ];
 

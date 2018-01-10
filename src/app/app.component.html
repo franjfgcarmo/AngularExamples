@@ -1,18 +1,18 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<md-sidenav-container>
-  <md-sidenav class="navigationSidenav" #sidenav>
-    <md-nav-list>
+<mat-sidenav-container>
+  <mat-sidenav class="navigationSidenav" #sidenav>
+    <mat-nav-list>
       <app-nav-item *ngFor="let route of routerLinks"
                     (click)="sidenav.close()"
                     [path]="route.path"
                     [linkText]="route.linkText">
       </app-nav-item>
-    </md-nav-list>
-  </md-sidenav>
+    </mat-nav-list>
+  </mat-sidenav>
   <section class="pageGrid">
-    <md-toolbar class="pageTitle" color="accent">
-      <button md-icon-button (click)="sidenav.open()">
-        <md-icon>menu</md-icon>
+    <mat-toolbar class="pageTitle" color="accent">
+      <button mat-icon-button (click)="sidenav.open()">
+        <mat-icon>menu</mat-icon>
       </button>
       <div>
         <span>SuperheroicCoding Demos</span>
@@ -21,9 +21,9 @@
       Click on the menu icon to choose examples.
     </span>
       </div>
-    </md-toolbar>
+    </mat-toolbar>
     <div class="pageContent">
     <router-outlet></router-outlet>
     </div>
   </section>
-</md-sidenav-container>
+</mat-sidenav-container>

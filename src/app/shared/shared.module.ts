@@ -1,18 +1,6 @@
 import {ModuleWithProviders, NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RandomService} from './random.service';
-import {
-  MdButtonModule,
-  MdCardModule,
-  MdCheckboxModule,
-  MdIconModule,
-  MdInputModule,
-  MdListModule,
-  MdSelectModule,
-  MdSidenavModule,
-  MdToolbarModule,
-  MdTooltipModule
-} from '@angular/material';
 import {FormsModule} from '@angular/forms';
 import {RaiseCardDirective} from './raise-card.directive';
 
@@ -34,21 +22,34 @@ import 'rxjs/add/operator/takeUntil';
 import 'rxjs/add/operator/bufferCount';
 import 'rxjs/add/operator/repeat';
 import '../rx/add/operator/map-worker';
+import {
+  MatButtonModule,
+  MatCardModule,
+  MatCheckboxModule, MatGridListModule,
+  MatIconModule,
+  MatInputModule,
+  MatListModule,
+  MatSelectModule,
+  MatSidenavModule,
+  MatToolbarModule,
+  MatTooltipModule
+} from '@angular/material';
 
 @NgModule({
   exports: [
     CommonModule,
     FormsModule,
-    MdButtonModule,
-    MdCheckboxModule,
-    MdInputModule,
-    MdToolbarModule,
-    MdTooltipModule,
-    MdIconModule,
-    MdCardModule,
-    MdListModule,
-    MdSelectModule,
-    MdSidenavModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatInputModule,
+    MatToolbarModule,
+    MatTooltipModule,
+    MatIconModule,
+    MatCardModule,
+    MatListModule,
+    MatSelectModule,
+    MatSidenavModule,
+    MatGridListModule,
     RaiseCardDirective
   ],
   declarations: [RaiseCardDirective]

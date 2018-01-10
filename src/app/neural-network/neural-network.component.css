@@ -1,0 +1,19 @@
+.perceptron-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.perceptron-card {
+  margin: 30px;
+  width: 400px;
+}
+
+.action-card {
+  margin: 30px;
+  width: 100%;
+}
+
+.weights-card {
+  width: 100%;
+}
+

@@ -15,7 +15,6 @@ import {NavItemComponent} from './nav-item/nav-item.component';
     InfoComponent,
     TechnologyComponent,
     NavItemComponent,
-    NavItemComponent
   ],
   imports: [
     BrowserModule,

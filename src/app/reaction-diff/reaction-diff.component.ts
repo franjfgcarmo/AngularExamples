@@ -5,7 +5,7 @@ import {CalcCellWeights} from './cell-weights';
 import {ReactionDiffConfigService} from './reaction-diff-config.service';
 import {ReactionDiffCalcParams} from './reaction-diff-calc-params';
 import {Observable} from 'rxjs/Observable';
-import {MdSelectChange} from '@angular/material';
+import {MatSelectChange} from '@angular/material';
 
 @Component({
   selector: 'app-reaction-diff',
@@ -89,7 +89,7 @@ export class ReactionDiffComponent implements OnInit {
     this.configService.updateCalcCellWeights(weights);
   }
 
-  public setSelection(option: MdSelectChange) {
+  public setSelection(option: MatSelectChange) {
     this.configService.setSelection(option.value);
   }
 

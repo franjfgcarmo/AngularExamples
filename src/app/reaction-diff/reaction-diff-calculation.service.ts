@@ -31,7 +31,7 @@ export class ReactionDiffCalcServiceFactory {
 interface CalcNextWebWorkerParam {
   width: number;
   height: number;
-  gridBuffer: ArrayBuffer;
+  gridBuffer: ArrayBufferLike;
   dA: number;
   dB: number;
   f: number;
@@ -53,7 +53,7 @@ export class ReactionDiffCalcService {
   private weights: CalcCellWeights;
   private addChemicalRadius: number;
   private workerSubjects$: Subject<WorkerPostParams<CalcNextWebWorkerParam>>[];
-  private workers$: Observable<{ buffer: ArrayBuffer; offsetRow: number }>[];
+  private workers$: Observable<{ buffer: ArrayBufferLike; offsetRow: number }>[];
   private canCalculate = true;
   private workerSubscriptions: Subscription[];
   private addChemicalsSubject$: Subject<WorkerPostParams<AddChemicalsParams>>;
@@ -193,7 +193,7 @@ export class ReactionDiffCalcService {
     }
   }
 
-  private receiveChunk(data: { buffer: ArrayBuffer, offsetRow: number }) {
+  private receiveChunk(data: { buffer: ArrayBufferLike, offsetRow: number }) {
     this.calcRunning--;
     if (!this.canCalculate) {
       return;

@@ -47,7 +47,7 @@ export class P5ViewComponent implements AfterContentInit {
   }
 
 
-  initP5(p: any) {
+  initP5(p: p5) {
     let wood;
 
     p.preload = () => {
