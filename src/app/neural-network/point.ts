@@ -1,12 +1,18 @@
+import {TrainData} from './train-data';
+
 export class Point {
   public label: number;
 
   constructor(private x: number = Math.random(), private y: number = Math.random()) {
-    this.label = this.x > this.y ? 1 : -1;
+    this.label = this.x * 0.1 + 0.5 > this.y  ? 1 : -1;
   }
 
   get data(): number[] {
     return [this.x, this.y];
+  }
+
+  get trainData(): TrainData {
+    return new TrainData(this.data, this.label);
   }
 
   show(p: any) {

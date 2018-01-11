@@ -1,11 +1,15 @@
+import {TrainData} from './train-data';
+
 export class Perceptron {
 
-  public weights: number[];
+  weights: number[];
+  bias = 1.0;
+  isLearning = false;
+  lastGuess: number;
+  lastLearnRate: number;
 
-  constructor(private inputConnections: number,
-              private outputMapping: (number) => number = (num) => Math.sign(num),
-              private learnRate: number = 0.05) {
-    this.weights = Perceptron.getRandomWeights(inputConnections);
+  private static outputMapping(activationLevel: number): number {
+    return Math.sign(activationLevel);
   }
 
   private static getRandomWeights(inputConnections: number) {
@@ -16,21 +20,38 @@ export class Perceptron {
     return result;
   }
 
-  guess(inputs: number[]): number {
-    return inputs.reduce((prev, input, index) => prev + input * this.weights[index], 0.0);
+
+  constructor(private inputConnections: number) {
+    this.weights = Perceptron.getRandomWeights(inputConnections);
   }
 
-  train(trainData: { inputs: number[], expected: number }): number {
-    const {inputs, expected} = trainData;
-    const guess = this.guess(inputs);
 
+  guess(inputs: number[]): number {
+    this.lastGuess = this.guessSilent(inputs);
+    return this.lastGuess;
+  }
+
+  guessSilent(inputs: number[]): number {
+    return Perceptron.outputMapping(inputs.reduce((prev, input, index) => prev + input * this.weights[index], this.bias));
+  }
+
+  train({inputs, expected}: TrainData, learnRate: number): number {
+    this.lastLearnRate = learnRate;
+    const guess = this.guess(inputs);
     const error = expected - guess;
 
-    const adjustedWeights = this.weights.map((weight, index) =>
-      weight + error * inputs[index] * this.learnRate
-    );
-    this.weights = adjustedWeights;
+    if (error !== 0.0) {
+      this.isLearning = true;
+      setTimeout(() => this.isLearning = false, 500);
+      const adjustedWeights = this.weights.map((weight, index) =>
+        weight + error * inputs[index] * learnRate
+      );
+
+      this.bias = this.bias + error * this.bias * learnRate;
+      this.weights = adjustedWeights;
+    }
     return error;
   }
+
 
 }
