@@ -1,4 +1,6 @@
-# Poisson: some example with Angular and p5
+# SuperheroicCoding: Some examples with Angular+ and other Frameworks
+
+Just some cool example for topics that I am interested in. 
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.3.1.
 
