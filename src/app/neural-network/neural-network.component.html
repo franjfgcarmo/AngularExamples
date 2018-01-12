@@ -6,19 +6,36 @@
 <div class="card-container">
   <mat-card appRaiseCard class="perceptron-card">
     <mat-card-title>A simple Perceptron</mat-card-title>
+    <mat-card-subtitle>
+      We are using a simple perceptron model with 2 inputs (x and y coordinates).
+      The learned classes for the given points have the simple definition x > y.
+      The learning rate starts with 0.3 and is slowly reduced with each learned data point.
+      Click to add points.
+    </mat-card-subtitle>
     <mat-card-content>
-      <div class="perceptron-canvas" #perceptronCanvas></div>
+      <app-data-view
+        [points]="points"
+        [perceptron]="perceptron"
+        (dataViewClicked)="addPoint($event)">
+        [canvasWidth]="width"
+        [canvasHeight]="height"
+      </app-data-view>
     </mat-card-content>
+    <div>
+    </div>
   </mat-card>
   <mat-card appRaiseCard class="actions-card">
     <mat-card-header>Actions</mat-card-header>
     <mat-card-content>
-      <button mat-button class="mat-raised-button" color="accent" (click)="train()">Train 10 Points</button>
-      <button mat-button class="mat-raised-button" color="accent" (click)="testAgainstNewData()">Test against new data
+      <button mat-raised-button color="accent" (click)="train()">Train 10 Points</button>
+      <button mat-raised-button color="accent" (click)="testAgainstNewData()">Test against new data
       </button>
-      <button mat-button class="mat-raised-button" color="accent" (click)="resetPerceptron()">Reset Perceptron
+      <button mat-raised-button color="accent" (click)="resetPerceptron()">Reset Perceptron
       </button>
-      <mat-checkbox [(ngModel)]="autoLearning" (change)="toggleAutoLearning()">Activate auto learning</mat-checkbox>
+      <mat-checkbox matTooltip="Each 30ms we learn a random point"
+                    [ngModel]="autoLearning$ | async"
+                    (ngModelChange)="toggleAutoLearning($event)">Activate auto learning
+      </mat-checkbox>
     </mat-card-content>
   </mat-card>
   <mat-card appRaiseCard class="weights-card">

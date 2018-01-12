@@ -1,12 +1,11 @@
 import {Injectable} from '@angular/core';
-import {Point} from './point';
+import {Point} from './shared/point';
 
 @Injectable()
 export class TrainDataService {
 
   constructor() {
   }
-
 
   createTestData(amount): Point[] {
     const points = [];

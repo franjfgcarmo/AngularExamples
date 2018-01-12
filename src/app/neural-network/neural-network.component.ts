@@ -1,24 +1,19 @@
-import {AfterContentInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import * as p5 from 'p5';
-import {PerceptronP5Scetch} from './data-p5-scetch';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {BrainService} from './brain.service';
-import {TrainDataService} from './train-data.service';
-import {Point} from './point';
+import {Point} from './shared/point';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
   selector: 'app-neural-network',
   templateUrl: './neural-network.component.html',
   styleUrls: ['./neural-network.component.css']
 })
-export class NeuralNetworkComponent implements OnInit, AfterContentInit {
+export class NeuralNetworkComponent implements OnInit {
 
+  width = 400;
+  height = 400;
 
-  @ViewChild('perceptronCanvas') private perceptronCanvas: ElementRef;
-  private p: any;
-  private perceptronScetch: PerceptronP5Scetch;
-  private autoLearning: false;
-  private width = 400;
-  private height = 400;
+  private autoLearning$: Observable<boolean>;
 
   constructor(private brainService: BrainService) {
   }
@@ -39,16 +34,7 @@ export class NeuralNetworkComponent implements OnInit, AfterContentInit {
     console.log('onInit');
     this.brainService.createPerceptron(2);
     this.brainService.updateTrainingData();
-  }
-
-  ngAfterContentInit(): void {
-    console.log('afterContentInit');
-    this.p = new p5((p) => {
-      this.perceptronScetch = new PerceptronP5Scetch(p, this.width, this.height, (x, y) => this.addPoint(x, y));
-    }, this.perceptronCanvas.nativeElement);
-
-    this.perceptronScetch.points = this.points;
-    this.perceptronScetch.perceptron = this.perceptron;
+    this.autoLearning$ = this.brainService.autoLearning$;
   }
 
   train() {
@@ -57,21 +43,19 @@ export class NeuralNetworkComponent implements OnInit, AfterContentInit {
 
   testAgainstNewData() {
     this.brainService.updateTrainingData();
-    this.perceptronScetch.points = this.points;
   }
 
-  toggleAutoLearning() {
-    this.brainService.toggleAutoTraining(this.autoLearning);
+  toggleAutoLearning($event: boolean) {
+    this.brainService.toggleAutoTraining($event);
   }
 
-  private addPoint(x: number, y: number) {
+  private addPoint({x, y}: { x: number, y: number }) {
     const point = new Point(x / this.width, y / this.height);
     this.brainService.addPoint(point);
   }
 
   resetPerceptron() {
     this.brainService.createPerceptron();
-    this.perceptronScetch.perceptron = this.perceptron;
   }
 }
 

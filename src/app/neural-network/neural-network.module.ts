@@ -5,14 +5,16 @@ import {SharedModule} from '../shared/shared.module';
 import {NeuralNetworkComponent} from './neural-network.component';
 import {BrainService} from './brain.service';
 import {TrainDataService} from './train-data.service';
-import { PerceptronComponent } from './perceptron/perceptron.component';
+import {PerceptronComponent} from './perceptron/perceptron.component';
+import {DataViewComponent} from './data-view/data-view.component';
 
 @NgModule({
   imports: [
     SharedModule,
     NeuralNetworkRoutingModule
   ],
-  declarations: [NeuralNetworkComponent, PerceptronComponent],
+  declarations: [NeuralNetworkComponent, PerceptronComponent, DataViewComponent],
   providers: [BrainService, TrainDataService]
 })
-export class NeuralNetworkModule { }
+export class NeuralNetworkModule {
+}

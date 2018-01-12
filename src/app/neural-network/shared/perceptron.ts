@@ -25,7 +25,6 @@ export class Perceptron {
     this.weights = Perceptron.getRandomWeights(inputConnections);
   }
 
-
   guess(inputs: number[]): number {
     this.lastGuess = this.guessSilent(inputs);
     return this.lastGuess;
@@ -53,5 +52,8 @@ export class Perceptron {
     return error;
   }
 
+  get learnedLine(): { x0: number, y0: number, y0: number, y1: number }{
+
+  }
 
 }

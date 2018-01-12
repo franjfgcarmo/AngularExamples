@@ -1,5 +1,5 @@
 import {AfterContentInit, Component, ElementRef, Input, ViewChild} from '@angular/core';
-import {Perceptron} from '../perceptron';
+import {Perceptron} from '../shared/perceptron';
 import * as P5 from 'p5';
 
 @Component({

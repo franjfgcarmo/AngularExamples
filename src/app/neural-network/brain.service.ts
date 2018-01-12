@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core';
-import {Perceptron} from './perceptron';
-import {Point} from './point';
+import {Perceptron} from './shared/perceptron';
+import {Point} from './shared/point';
 import {TrainDataService} from './train-data.service';
-import {Subject} from 'rxjs/Subject';
 import {IntervalObservable} from 'rxjs/observable/IntervalObservable';
-import {filter, repeat, skipUntil, takeUntil} from 'rxjs/operators';
+import {distinctUntilChanged, filter, repeat, skipUntil, startWith, takeUntil} from 'rxjs/operators';
+import {Subject} from 'rxjs/Subject';
 
 const defaultLearnRate = 0.3;
 
@@ -21,14 +21,20 @@ export class BrainService {
   private startAutoLearning$ = this.autoLearningSubject.pipe(filter(autoLearningEnabled => autoLearningEnabled));
   private stopAutoLearning$ = this.autoLearningSubject.pipe(filter(autoLearningEnabled => !autoLearningEnabled));
 
-  public autoLearning$ = IntervalObservable.create(50).pipe(
+  private autoLearner$ = IntervalObservable.create(50).pipe(
+    distinctUntilChanged(),
     skipUntil(this.startAutoLearning$),
     takeUntil(this.stopAutoLearning$),
     repeat()
   );
 
+
   constructor(private trainDataService: TrainDataService) {
-    this.autoLearning$.subscribe(() => this.train(1));
+    this.autoLearner$.subscribe(() => this.train(1));
+  }
+
+  get autoLearning$() {
+    return this.autoLearningSubject.asObservable().pipe(startWith(false));
   }
 
   get learnRate() {
@@ -42,11 +48,12 @@ export class BrainService {
   createPerceptron(inputDimensions: number = 2): Perceptron {
     this.learnedDataPoints = 0;
     this.learnRate = defaultLearnRate;
-    this.perceptron = new Perceptron(2);
+    this.perceptron = new Perceptron(inputDimensions);
     return this.perceptron;
   }
 
   train(randomDataPointsToTest: number = 10) {
+    console.log(this);
     if (this.perceptron == null) {
       this.createPerceptron(2);
     }
