@@ -45,9 +45,21 @@ export class DataViewComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngAfterViewInit(): void {
+
+    this.initDataScetch();
+    this.initLegendScetch();
+
+
+  }
+
+
+  ngOnInit() {
+
+  }
+
+  private initDataScetch() {
     const dataScetch = new P5((p) => {
       this.dataScetch = new DataP5Scetch(p, this.canvasWidth, this.canvasHeight, (x, y) => {
-        console.log('clicked', x, y);
         this.dataViewClicked.emit({x, y});
       });
       this.dataScetch.points = this.points;
@@ -55,8 +67,54 @@ export class DataViewComponent implements OnInit, AfterViewInit, OnChanges {
     }, this.dataCanvas.nativeElement);
   }
 
+  private initLegendScetch() {
+    const legendScetch = new P5(
+      (p) => {
 
-  ngOnInit() {
+        p.setup = () => {
+          p.createCanvas(100, this.canvasHeight);
+          p.background(255);
+          p.fill(0);
+          p.stroke(0);
+          p.line(10, 50, 60, 50);
+          p.noStroke();
+          p.text('Class separation', 10, 42);
 
+          p.stroke(255, 200, 200);
+          p.strokeWeight(2);
+          p.line(10, 100, 60, 100);
+          p.noStroke();
+          p.text('Perceptron separation', 10, 68, 20, 80);
+
+          p.fill(255, 0, 0);
+          p.noStroke();
+          p.ellipse(15, 150, 5, 5);
+          p.fill(0);
+          p.text('Learned wrong', 10, 142);
+
+          p.fill(0, 255, 0);
+          p.noStroke();
+          p.ellipse(15, 200, 5, 5);
+          p.fill(0);
+          p.text('Learned correct', 10, 192);
+
+
+          p.fill(255, 255, 0);
+          p.stroke(0);
+          p.ellipse(15, 250, 8, 8);
+          p.fill(0);
+          p.noStroke();
+          p.text('Class 1', 10, 242);
+
+          p.fill(0, 0, 255);
+          p.stroke(0);
+          p.ellipse(15, 300, 8, 8);
+          p.fill(0);
+          p.noStroke();
+          p.text('Class 2', 10, 292);
+
+        };
+
+      }, this.legendCanvas.nativeElement);
   }
 }

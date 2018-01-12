@@ -30,7 +30,7 @@ import {
   MatInputModule,
   MatListModule,
   MatSelectModule,
-  MatSidenavModule,
+  MatSidenavModule, MatSlideToggleModule,
   MatToolbarModule,
   MatTooltipModule
 } from '@angular/material';
@@ -50,6 +50,7 @@ import {
     MatSelectModule,
     MatSidenavModule,
     MatGridListModule,
+    MatSlideToggleModule,
     RaiseCardDirective
   ],
   declarations: [RaiseCardDirective]

@@ -5,18 +5,18 @@ import {TrainDataService} from './train-data.service';
 import {IntervalObservable} from 'rxjs/observable/IntervalObservable';
 import {distinctUntilChanged, filter, repeat, skipUntil, startWith, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs/Subject';
+import {Observable} from 'rxjs/Observable';
 
 const defaultLearnRate = 0.3;
 
 @Injectable()
 export class BrainService {
 
+  learnedDataPoints = 0;
+  points: Point[] = [];
+  perceptron: Perceptron;
+
   private _learnRate = defaultLearnRate;
-  private learnedDataPoints = 0;
-
-  public points: Point[] = [];
-  public perceptron: Perceptron;
-
   private autoLearningSubject = new Subject<boolean>();
   private startAutoLearning$ = this.autoLearningSubject.pipe(filter(autoLearningEnabled => autoLearningEnabled));
   private stopAutoLearning$ = this.autoLearningSubject.pipe(filter(autoLearningEnabled => !autoLearningEnabled));
@@ -33,7 +33,7 @@ export class BrainService {
     this.autoLearner$.subscribe(() => this.train(1));
   }
 
-  get autoLearning$() {
+  get autoLearning$(): Observable<boolean> {
     return this.autoLearningSubject.asObservable().pipe(startWith(false));
   }
 
@@ -53,7 +53,6 @@ export class BrainService {
   }
 
   train(randomDataPointsToTest: number = 10) {
-    console.log(this);
     if (this.perceptron == null) {
       this.createPerceptron(2);
     }
@@ -68,7 +67,7 @@ export class BrainService {
       const error = this.perceptron.train(point.trainData, this.learnRate);
       if (error !== 0.0) {
         this.learnedDataPoints++;
-        this._learnRate = Math.max(this.learnRate * (1 - this.learnedDataPoints / 1000), 0.005);
+        this._learnRate = Math.max(this.learnRate * (1 - this.learnedDataPoints / 1000), 0.0005);
       }
     }
   }

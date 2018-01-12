@@ -4,7 +4,7 @@
   </mat-toolbar-row>
 </mat-toolbar>
 <div class="card-container">
-  <mat-card appRaiseCard class="perceptron-card">
+  <mat-card appRaiseCard class="data-card">
     <mat-card-title>A simple Perceptron</mat-card-title>
     <mat-card-subtitle>
       We are using a simple perceptron model with 2 inputs (x and y coordinates).
@@ -25,23 +25,33 @@
     </div>
   </mat-card>
   <mat-card appRaiseCard class="actions-card">
-    <mat-card-header>Actions</mat-card-header>
+    <mat-card-title>
+      Actions
+    </mat-card-title>
+    <mat-card-subtitle>Train, create data, reset</mat-card-subtitle>
     <mat-card-content>
       <button mat-raised-button color="accent" (click)="train()">Train 10 Points</button>
       <button mat-raised-button color="accent" (click)="testAgainstNewData()">Test against new data
       </button>
       <button mat-raised-button color="accent" (click)="resetPerceptron()">Reset Perceptron
       </button>
-      <mat-checkbox matTooltip="Each 30ms we learn a random point"
+      <mat-slide-toggle matTooltip="Each 30ms we learn a random point" color="primary"
                     [ngModel]="autoLearning$ | async"
-                    (ngModelChange)="toggleAutoLearning($event)">Activate auto learning
-      </mat-checkbox>
+                    (ngModelChange)="toggleAutoLearning($event)">Auto-learning {{(autoLearning$ | async)? 'enabled' : 'disabled'}}
+      </mat-slide-toggle>
+      <mat-select>
+        <mat-selection-list *ngFor="let algDescr"></mat-selection-list>
+
+
+      </mat-select>
     </mat-card-content>
   </mat-card>
-  <mat-card appRaiseCard class="weights-card">
-    <mat-card-header>Perceptron</mat-card-header>
+  <mat-card appRaiseCard class="perceptron-card">
+    <mat-card-title>Perceptron</mat-card-title>
+    <mat-card-subtitle>Here we show the current perceptron with its last inputs and outputs</mat-card-subtitle>
     <mat-card-content>
-      <div>Learnrate: {{learnRate}}</div>
+      <div>Learnrate: {{learnRate}}, learned data points: {{learnedDataPoints}}</div>
+
       <app-perceptron [perceptron]="perceptron"></app-perceptron>
     </mat-card-content>
   </mat-card>

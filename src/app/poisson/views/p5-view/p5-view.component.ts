@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import {Circle} from '../../shared/circle';
 import {Vector} from '../../shared/vector';
-import * as p5 from 'p5';
+import * as P5 from 'p5';
 
 @Component({
   selector: 'app-p5-view',
@@ -39,7 +39,7 @@ export class P5ViewComponent implements AfterContentInit {
   }
 
   ngAfterContentInit() {
-    this.scetch = new p5((p) => this.initP5(p), this.p5Canvas.nativeElement);
+    this.scetch = new P5((p) => this.initP5(p), this.p5Canvas.nativeElement);
   }
 
   public onClick($event: MouseEvent) {
@@ -47,7 +47,7 @@ export class P5ViewComponent implements AfterContentInit {
   }
 
 
-  initP5(p: p5) {
+  initP5(p: any) {
     let wood;
 
     p.preload = () => {
@@ -89,13 +89,12 @@ export class P5ViewComponent implements AfterContentInit {
 
       p.background(0);
 
-
       p.push();
       const position = p.createVector(p.mouseX - p.width / 2, p.mouseY - p.height / 2);
       position.setMag(500);
       p.translate(position.x, position.y, 30);
       p.fill(hueDir, saturationDir, 50);
-      p.sphere(50);
+      // p.sphere(50);
       p.pop();
 
       this.drawAreaFrame(p);
@@ -104,7 +103,6 @@ export class P5ViewComponent implements AfterContentInit {
         p.push();
         p.translate(-p.width / 2, -p.height / 2);
         this.circles.forEach(circle => {
-
           p.texture(wood);
           this.drawCircle(circle, this.time, p);
         });
@@ -148,7 +146,7 @@ export class P5ViewComponent implements AfterContentInit {
     p.pop();
   }
 
-  drawCircle(circle: Circle, step: number, p: p5): void {
+  drawCircle(circle: Circle, step: number, p: any): void {
     p.push();
     p.translate(Math.floor(circle.pos.x), Math.floor(circle.pos.y), 10);
     p.rotate(circle.pos.magFast(), p.createVector(circle.pos.x, circle.pos.y, 0));

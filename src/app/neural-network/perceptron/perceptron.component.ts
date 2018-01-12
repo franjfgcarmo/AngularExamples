@@ -10,6 +10,7 @@ import * as P5 from 'p5';
 export class PerceptronComponent implements AfterContentInit {
 
   @Input() perceptron: Perceptron;
+  @Input() learnedDataPoints?: number;
   @ViewChild('perceptronCanvas') perceptronCanvas: ElementRef;
 
   static roundFloat(input: number) {
@@ -45,9 +46,10 @@ export class PerceptronComponent implements AfterContentInit {
     p.text('∑', 0, 5);
 
     p.line(25, 0, 100, 0);
-    p.textSize(12);
-    p.text('Output:' + this.perceptron.lastGuess, 60, -2);
-
+    if (this.perceptron.lastGuess != null) {
+      p.textSize(12);
+      p.text('Output:' + this.perceptron.lastGuess, 60, -2);
+    }
     p.pop();
   }
 
@@ -76,7 +78,10 @@ export class PerceptronComponent implements AfterContentInit {
       p.text('Input ' + (index + 1), 25, y + 4);
       p.line(45, y, 135, 150);
       p.textAlign(p.LEFT);
-      p.text(`w${index + 1}: ${PerceptronComponent.roundFloat(weight)}`, 50, y);
+      if (this.perceptron.lastInput) {
+        p.text(`in${index + 1}: ${PerceptronComponent.roundFloat(this.perceptron.lastInput[index])}`, 50, y - 10);
+      }
+      p.text(`w${index + 1}: ${PerceptronComponent.roundFloat(weight)}`, 50, y + 20);
     });
   }
 

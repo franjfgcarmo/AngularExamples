@@ -7,6 +7,7 @@ export class Perceptron {
   isLearning = false;
   lastGuess: number;
   lastLearnRate: number;
+  lastInput: number[];
 
   private static outputMapping(activationLevel: number): number {
     return Math.sign(activationLevel);
@@ -26,6 +27,7 @@ export class Perceptron {
   }
 
   guess(inputs: number[]): number {
+    this.lastInput = inputs;
     this.lastGuess = this.guessSilent(inputs);
     return this.lastGuess;
   }
@@ -46,14 +48,17 @@ export class Perceptron {
         weight + error * inputs[index] * learnRate
       );
 
-      this.bias = this.bias + error * this.bias * learnRate;
+      this.bias = this.bias + error * learnRate;
       this.weights = adjustedWeights;
     }
     return error;
   }
 
-  get learnedLine(): { x0: number, y0: number, y0: number, y1: number }{
+  get classSeparatorLine(): { x0: number, y0: number, x1: number, y1: number } {
+    const y0 = this.bias / -this.weights[1];
+    const y1 = (this.weights[0] + this.bias) / -this.weights[1];
 
+    return {x0: 0, y0, x1: 0, y1};
   }
 
 }

@@ -1,10 +1,23 @@
 import {TrainData} from './train-data';
 
 export class Point {
-  public label: number;
+  private _label: -1 | 1;
 
-  constructor(private x: number = Math.random(), private y: number = Math.random()) {
-    this.label = this.x > this.y ? 1 : -1;
+  constructor(private x: number = Math.random(),
+              private y: number = Math.random(),
+              private _labelDefinition = (in1, in2) => in1 > in2 ? 1 : -1) {
+  }
+
+  get label() {
+    if (this._label == null) {
+      return this._labelDefinition(this.x, this.y);
+    }
+    return this._label;
+  }
+
+  set labelDefinition(labelDef: (in1: number, in2: number) => 1 | -1) {
+    this._label = null;
+    this._labelDefinition = labelDef;
   }
 
   get data(): number[] {
@@ -17,7 +30,7 @@ export class Point {
 
   show(p: any) {
     p.stroke(0);
-    p.fill(this.label === 1 ? 255 : 0);
+    p.fill(this.label === 1 ? p.color(255, 255, 0) : p.color(0, 0, 255));
     p.ellipse(this.x * p.width, this.y * p.height, 8, 8);
   }
 

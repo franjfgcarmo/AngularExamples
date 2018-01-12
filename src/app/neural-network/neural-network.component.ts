@@ -6,7 +6,7 @@ import {Observable} from 'rxjs/Observable';
 @Component({
   selector: 'app-neural-network',
   templateUrl: './neural-network.component.html',
-  styleUrls: ['./neural-network.component.css']
+  styleUrls: ['./neural-network.component.less']
 })
 export class NeuralNetworkComponent implements OnInit {
 
@@ -30,8 +30,11 @@ export class NeuralNetworkComponent implements OnInit {
     return this.brainService.learnRate;
   }
 
+  get learnedDataPoints() {
+    return this.brainService.learnedDataPoints;
+  }
+
   ngOnInit(): void {
-    console.log('onInit');
     this.brainService.createPerceptron(2);
     this.brainService.updateTrainingData();
     this.autoLearning$ = this.brainService.autoLearning$;
@@ -49,7 +52,7 @@ export class NeuralNetworkComponent implements OnInit {
     this.brainService.toggleAutoTraining($event);
   }
 
-  private addPoint({x, y}: { x: number, y: number }) {
+  addPoint({x, y}: { x: number, y: number }) {
     const point = new Point(x / this.width, y / this.height);
     this.brainService.addPoint(point);
   }

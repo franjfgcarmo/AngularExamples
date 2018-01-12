@@ -22,6 +22,7 @@ export class DataP5Scetch {
   draw() {
     if (this.perceptron) {
       this.p.background(255);
+      this.p.strokeWeight(1);
       this.points.forEach(point => point.show(this.p));
       this.p.stroke(0);
       this.p.line(0, 0, this.p.width, this.p.height);
@@ -31,11 +32,7 @@ export class DataP5Scetch {
         point.showForResult(this.p, result);
       });
 
-      this.p.stroke(255, 200, 200);
-      const y0 = (this.perceptron.bias * this.height) / -this.perceptron.weights[1];
-      const yWidth = this.width * (this.perceptron.weights[0] + this.perceptron.bias) / -this.perceptron.weights[1];
-
-      this.p.line(0, y0, this.width, yWidth);
+      this.drawSeparationLine();
     }
   }
 
@@ -48,5 +45,16 @@ export class DataP5Scetch {
         return false;
       }
     }
+  }
+
+  private drawSeparationLine() {
+    const classSeparatorLine = this.perceptron.classSeparatorLine;
+    const y0 = classSeparatorLine.y0 * this.height;
+    const y1 = this.width * classSeparatorLine.y1;
+
+    this.p.stroke(255, 200, 200);
+    this.p.strokeWeight(3);
+    this.p.line(0, y0, this.width, y1);
+    this.p.strokeWeight(1);
   }
 }
