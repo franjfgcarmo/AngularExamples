@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {BrainService} from './brain.service';
 import {Point} from '../shared/point';
 import {Observable} from 'rxjs/Observable';
@@ -19,7 +19,7 @@ export class PerceptronTabComponent implements OnInit {
   }
 
   get perceptron() {
-    return this.brainService.perceptron;
+    return this.brainService.perceptrons[0][0];
   }
 
   get points() {
@@ -52,7 +52,7 @@ export class PerceptronTabComponent implements OnInit {
     this.brainService.toggleAutoTraining($event);
   }
 
-  addPoint({x, y, click}: { x: number, y: number, click: 'left'| 'right' }) {
+  addPoint({x, y, click}: { x: number, y: number, click: 'left' | 'right' }) {
     const point = new Point(x / this.width, y / this.height, () => click === 'left' ? 1 : 0);
     this.brainService.addPoint(point);
   }

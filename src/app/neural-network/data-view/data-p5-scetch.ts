@@ -28,7 +28,7 @@ export class DataP5Scetch {
         for (let y = 0; y < this.separationImg.height; y++) {
           const inp0 = this.p.map(x, 0, this.separationImg.width, 0, 1);
           const inp1 = this.p.map(y, 0, this.separationImg.height, 0, 1);
-          const guessWithoutStep = this.perceptron.guessWithoutStep([inp0, inp1]);
+          const guessWithoutStep = this.perceptron.guessSig([inp0, inp1]);
           const absGuess = Math.abs(guessWithoutStep - 0.5);
           const colorValue = this.p.map(absGuess, 0, 0.1, 255, 128);
           this.separationImg.set(x, y, [colorValue, colorValue, colorValue, 255]);

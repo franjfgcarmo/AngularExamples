@@ -34,11 +34,11 @@ export class Perceptron {
   }
 
   guessSilent(inputs: number[]): LabelClass {
-    return Perceptron.outputMapping(this.guessWithoutStep(inputs));
+    return Perceptron.outputMapping(this.guessSig(inputs));
   }
 
 
-  guessWithoutStep(inputs: number[]): number {
+  guessSig(inputs: number[]): number {
     const weightedSum = inputs.reduce((prev, input, index) => prev + input * this.weights[index], this.bias);
     return 1 / (1 + Math.exp(-weightedSum));
   }

@@ -1,3 +1,16 @@
-<p>
-  multi-perceptron works!
-</p>
+<div class="perceptronsContainer">
+  <div class="inputLayer">
+    <mat-card>
+      <mat-card-content>
+        <div *ngFor="let perceptron of perceptrons[0]">
+          <app-perceptron [perceptron]="perceptron"></app-perceptron>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  <mat-card class="outputLayer">
+    <mat-card-content>
+      <app-perceptron [perceptron]="perceptrons[1][0]"></app-perceptron>
+    </mat-card-content>
+  </mat-card>
+</div>
