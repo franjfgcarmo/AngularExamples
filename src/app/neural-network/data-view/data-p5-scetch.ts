@@ -5,6 +5,7 @@ export class DataP5Scetch {
 
   public points: Point[] = [];
   public perceptron: Perceptron;
+  private separationImg: any;
 
   constructor(private p: any,
               private width: number = 400,
@@ -21,7 +22,20 @@ export class DataP5Scetch {
 
   draw() {
     if (this.perceptron) {
-      this.p.background(255);
+      this.separationImg = this.p.createImage(this.width / 10, this.height / 10);
+      this.separationImg.loadPixels();
+      for (let x = 0; x < this.separationImg.width; x++) {
+        for (let y = 0; y < this.separationImg.height; y++) {
+          const inp0 = this.p.map(x, 0, this.separationImg.width, 0, 1);
+          const inp1 = this.p.map(y, 0, this.separationImg.height, 0, 1);
+          const guessWithoutStep = this.perceptron.guessWithoutStep([inp0, inp1]);
+          const absGuess = Math.abs(guessWithoutStep - 0.5);
+          const colorValue = this.p.map(absGuess, 0, 0.1, 255, 128);
+          this.separationImg.set(x, y, [colorValue, colorValue, colorValue, 255]);
+        }
+      }
+      this.separationImg.updatePixels();
+      this.p.image(this.separationImg, 0, 0, this.width, this.height);
       this.p.strokeWeight(1);
       this.points.forEach(point => point.show(this.p));
       this.p.stroke(0);

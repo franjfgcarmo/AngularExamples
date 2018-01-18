@@ -38,23 +38,18 @@ export class DataViewComponent implements OnInit, AfterViewInit, OnChanges {
     if (changes.points && !changes.points.firstChange && changes.points.previousValue !== changes.points.currentValue) {
       this.dataScetch.points = changes.points.currentValue;
     }
-
     if (changes.perceptron && !changes.perceptron.firstChange && changes.perceptron.previousValue !== changes.perceptron.currentValue) {
       this.dataScetch.perceptron = changes.perceptron.currentValue;
     }
   }
 
   ngAfterViewInit(): void {
-
     this.initDataScetch();
     this.initLegendScetch();
-
-
   }
 
 
   ngOnInit() {
-
   }
 
   private initDataScetch() {
@@ -70,7 +65,6 @@ export class DataViewComponent implements OnInit, AfterViewInit, OnChanges {
   private initLegendScetch() {
     const legendScetch = new P5(
       (p) => {
-
         p.setup = () => {
           p.createCanvas(100, this.canvasHeight);
           p.background(255);

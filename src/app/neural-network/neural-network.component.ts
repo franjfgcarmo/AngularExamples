@@ -54,7 +54,7 @@ export class NeuralNetworkComponent implements OnInit {
 
   addPoint({x, y, click}: { x: number, y: number, click: 'left'| 'right' }) {
     console.log(click);
-    const point = new Point(x / this.width, y / this.height, () => click === 'left' ? 1 : -1);
+    const point = new Point(x / this.width, y / this.height, () => click === 'left' ? 1 : 0);
     this.brainService.addPoint(point);
   }
 

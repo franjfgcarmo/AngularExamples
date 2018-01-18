@@ -2,6 +2,7 @@ import {ModuleWithProviders, NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {RaiseCardDirective} from './raise-card.directive';
+import 'hammerjs';
 
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/from';

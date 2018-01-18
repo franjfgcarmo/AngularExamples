@@ -1,4 +1,5 @@
 import {TrainData} from './train-data';
+import {LabelClass} from './point';
 
 export class Perceptron {
 
@@ -9,8 +10,8 @@ export class Perceptron {
   lastLearnRate: number;
   lastInput: number[];
 
-  private static outputMapping(activationLevel: number): number {
-    return Math.sign(activationLevel);
+  private static outputMapping(activationLevel: number): LabelClass {
+    return activationLevel < 0.5 ? 0 : 1;
   }
 
   private static getRandomWeights(inputConnections: number) {
@@ -32,8 +33,14 @@ export class Perceptron {
     return this.lastGuess;
   }
 
-  guessSilent(inputs: number[]): number {
-    return Perceptron.outputMapping(inputs.reduce((prev, input, index) => prev + input * this.weights[index], this.bias));
+  guessSilent(inputs: number[]): LabelClass {
+    return Perceptron.outputMapping(this.guessWithoutStep(inputs));
+  }
+
+
+  guessWithoutStep(inputs: number[]): number {
+    const weightedSum = inputs.reduce((prev, input, index) => prev + input * this.weights[index], this.bias);
+    return 1 / (1 + Math.exp(-weightedSum));
   }
 
   train({inputs, expected}: TrainData, learnRate: number): number {
