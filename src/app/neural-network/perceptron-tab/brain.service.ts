@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
-import {Perceptron} from './shared/perceptron';
-import {Point} from './shared/point';
-import {TrainDataService} from './train-data.service';
+import {TrainDataService} from '../shared/train-data.service';
 import {IntervalObservable} from 'rxjs/observable/IntervalObservable';
 import {distinctUntilChanged, filter, repeat, skipUntil, startWith, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs/Subject';
 import {Observable} from 'rxjs/Observable';
+import {Point} from '../shared/point';
+import {Perceptron} from '../shared/perceptron';
 
 const defaultLearnRate = 0.3;
 
@@ -35,7 +35,7 @@ export class BrainService {
 
   get autoLearning$(): Observable<boolean> {
     return this.autoLearningSubject.asObservable().pipe(startWith(false));
-  }
+}
 
   get learnRate() {
     return this._learnRate;

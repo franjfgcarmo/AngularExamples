@@ -1,7 +1,9 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {BrainService} from './brain.service';
+import {BrainService} from './perceptron-tab/brain.service';
 import {Point} from './shared/point';
 import {Observable} from 'rxjs/Observable';
+import {navLinks} from './neural-network-routing.module';
+import {Route} from '@angular/router';
 
 @Component({
   selector: 'app-neural-network',
@@ -9,61 +11,13 @@ import {Observable} from 'rxjs/Observable';
   styleUrls: ['./neural-network.component.less']
 })
 export class NeuralNetworkComponent implements OnInit {
-
-  width = 400;
-  height = 400;
-
-  autoLearning$: Observable<boolean>;
-
-  constructor(private brainService: BrainService) {
-  }
-
-  get perceptron() {
-    return this.brainService.perceptron;
-  }
-
-  get points() {
-    return this.brainService.points;
-  }
-
-  get learnRate() {
-    return this.brainService.learnRate;
-  }
-
-  get learnedDataPoints() {
-    return this.brainService.learnedDataPoints;
-  }
+  navLinks: { path: any, label: string }[];
 
   ngOnInit(): void {
-    this.brainService.createPerceptron(2);
-    this.brainService.updateTrainingData();
-    this.autoLearning$ = this.brainService.autoLearning$;
-  }
-
-  train() {
-    this.brainService.train();
-  }
-
-  testAgainstNewData() {
-    this.brainService.updateTrainingData();
-  }
-
-  toggleAutoLearning($event: boolean) {
-    this.brainService.toggleAutoTraining($event);
-  }
-
-  addPoint({x, y, click}: { x: number, y: number, click: 'left'| 'right' }) {
-    console.log(click);
-    const point = new Point(x / this.width, y / this.height, () => click === 'left' ? 1 : 0);
-    this.brainService.addPoint(point);
-  }
-
-  resetPerceptron() {
-    this.brainService.createPerceptron();
-  }
-
-  clearPoints() {
-    this.brainService.clearPoints();
+    this.navLinks = [
+      {path: 'perceptron', label: 'Perceptron'},
+      {path: 'multiPerceptron', label: 'Multi layer net'}
+    ];
   }
 }
 

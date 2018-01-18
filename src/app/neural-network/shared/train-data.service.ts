@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Point} from './shared/point';
+import {Point} from './point';
 
 @Injectable()
 export class TrainDataService {

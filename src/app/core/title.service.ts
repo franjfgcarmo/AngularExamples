@@ -11,14 +11,13 @@ export class TitleService {
               private titleService: Title) {
     const linkText$ = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
-      switchMap<NavigationEnd, Data>((event) => {
+      switchMap<NavigationEnd, Data>((ignored) => {
         let actRoute = this.activatedRoute;
         while (actRoute.firstChild != null && actRoute.firstChild.outlet === 'primary') {
           actRoute = actRoute.firstChild;
         }
         return actRoute.data;
       }),
-      tap((data) => console.log('Nav End:', data, this.activatedRoute)),
       map((data: AppRouteData) => `${data.linkText ? data.linkText + '@' : ''}Angular Examples by SuperheroicConding`)
     );
 
