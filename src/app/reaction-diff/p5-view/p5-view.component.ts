@@ -21,7 +21,6 @@ import {ColorMapperService} from './color-mapper.service';
 })
 export class P5ViewComponent implements OnChanges {
 
-
   @ViewChild('drawArea') drawArea: ElementRef;
   @Input() simWidth: number;
   @Input() simHeight: number;
@@ -46,7 +45,7 @@ export class P5ViewComponent implements OnChanges {
     }
   }
 
-  private initP5(p: any) {
+  private initP5(p: p5) {
     p.setup = () => {
       p.createCanvas(Math.floor(this.simWidth * this.scale), Math.floor(this.simHeight * this.scale));
       p.frameRate(30);
@@ -99,9 +98,6 @@ export class P5ViewComponent implements OnChanges {
         // this.mousePressed.emit({x, y});
         this.calcService.addChemical(x, y);
       }
-    };
-    p.mouseOver = () => {
-
     };
   }
 

@@ -30,7 +30,7 @@ export class BrainService {
 
 
   constructor(private trainDataService: TrainDataService) {
-    this.autoLearner$.subscribe(() => this.train(1));
+    this.autoLearner$.subscribe(() => this.train());
   }
 
   get autoLearning$(): Observable<boolean> {
@@ -57,8 +57,11 @@ export class BrainService {
       this.createPerceptron(2);
     }
 
-    if (this.points == null || this.points.length === 0) {
+    if (this.points == null) {
       this.updateTrainingData();
+    }
+    if (this.points.length === 0) {
+      return;
     }
 
     for (let i = 0; i < randomDataPointsToTest; i++) {
@@ -88,5 +91,9 @@ export class BrainService {
   addPoint(point: Point) {
     this.points.push(point);
     this.perceptron.guess(point.data);
+  }
+
+  clearPoints() {
+    this.points = [];
   }
 }

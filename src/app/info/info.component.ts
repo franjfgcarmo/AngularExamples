@@ -9,7 +9,7 @@ import {Technology} from './technology';
 export class InfoComponent implements OnInit {
 
   public technologies = [
-    new Technology('Angular 4', 'http://angular.io/', 'assets/logos/angular.png'),
+    new Technology('Angular+', 'http://angular.io/', 'assets/logos/angular.svg'),
     new Technology('Angular CLI', 'https://cli.angular.io/', 'assets/logos/angular-cli.svg'),
     new Technology('Angular Material', 'http://angular.material.io/', 'assets/logos/angular-material.svg'),
     new Technology('Typescript', 'http://www.typescriptlang.org/', 'assets/logos/typescript.svg'),

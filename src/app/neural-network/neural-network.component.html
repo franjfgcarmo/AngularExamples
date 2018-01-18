@@ -8,9 +8,14 @@
     <mat-card-title>A simple Perceptron</mat-card-title>
     <mat-card-subtitle>
       We are using a simple perceptron model with 2 inputs (x and y coordinates).
+      <br>
       The learned classes for the given points have the simple definition x > y.
+      <br>
       The learning rate starts with 0.3 and is slowly reduced with each learned data point.
-      Click to add points.
+      <br>
+      Click left to add add points of class1.
+      <br>
+      Click right to add add points of class2.
     </mat-card-subtitle>
     <mat-card-content>
       <app-data-view
@@ -35,15 +40,16 @@
       </button>
       <button mat-raised-button color="accent" (click)="resetPerceptron()">Reset Perceptron
       </button>
-      <mat-slide-toggle matTooltip="Each 30ms we learn a random point" color="primary"
-                    [ngModel]="autoLearning$ | async"
-                    (ngModelChange)="toggleAutoLearning($event)">Auto-learning {{(autoLearning$ | async)? 'enabled' : 'disabled'}}
+      <mat-slide-toggle matTooltip="Each 30ms we learn 10 random point" color="primary"
+                        [ngModel]="autoLearning$ | async"
+                        (ngModelChange)="toggleAutoLearning($event)">Auto-learning {{(autoLearning$ | async)? 'enabled'
+        : 'disabled'}}
       </mat-slide-toggle>
-      <mat-select>
-        <mat-selection-list *ngFor="let algDescr"></mat-selection-list>
-
-
-      </mat-select>
+      <button mat-raised-button
+              color="accent"
+              (click)="clearPoints()">
+        Clear Points
+      </button>
     </mat-card-content>
   </mat-card>
   <mat-card appRaiseCard class="perceptron-card">

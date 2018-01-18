@@ -27,7 +27,7 @@ export class DataViewComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() points: Point[];
   @Input() canvasWidth? = 400;
   @Input() canvasHeight? = 400;
-  @Output() dataViewClicked: EventEmitter<{ x: number, y: number }> = new EventEmitter<{ x: number, y: number }>();
+  @Output() dataViewClicked: EventEmitter<{ x: number, y: number, click: 'left' | 'right' }> = new EventEmitter();
 
   private dataScetch: any;
 
@@ -59,8 +59,8 @@ export class DataViewComponent implements OnInit, AfterViewInit, OnChanges {
 
   private initDataScetch() {
     const dataScetch = new P5((p) => {
-      this.dataScetch = new DataP5Scetch(p, this.canvasWidth, this.canvasHeight, (x, y) => {
-        this.dataViewClicked.emit({x, y});
+      this.dataScetch = new DataP5Scetch(p, this.canvasWidth, this.canvasHeight, (x, y, click) => {
+        this.dataViewClicked.emit({x, y, click});
       });
       this.dataScetch.points = this.points;
       this.dataScetch.perceptron = this.perceptron;

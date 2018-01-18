@@ -83,7 +83,6 @@ export class P5ViewComponent implements AfterContentInit {
       const saturationDir = p.noise(this.time * 0.001 + 30000) * 100;
       p.directionalLight(hueDir, saturationDir, 50, locX, locY, 0.25);
 
-
       p.camera(0, 0, 0);
       p.orbitControl();
 
@@ -148,13 +147,16 @@ export class P5ViewComponent implements AfterContentInit {
 
   drawCircle(circle: Circle, step: number, p: any): void {
     p.push();
-    p.translate(Math.floor(circle.pos.x), Math.floor(circle.pos.y), 10);
-    p.rotate(circle.pos.magFast(), p.createVector(circle.pos.x, circle.pos.y, 0));
+    const {x, y} = circle.pos;
+    p.translate(Math.floor(x), Math.floor(y), 10);
+    p.rotate(circle.pos.magFast(), p.createVector(x, y, 0));
 
-    this.maxR = Math.max(this.maxR, circle.r);
-    const detailX = p.floor(p.map(circle.r, 1, this.maxR, 4, 24));
-    const detailY = p.floor(p.map(circle.r, 1, this.maxR, 4, 16));
-    p.sphere(circle.r, detailX, detailY);
+    const r = circle.r;
+    this.maxR = Math.max(this.maxR, r);
+    const detailX = p.floor(p.map(r, 1, this.maxR, 4, 24));
+    const detailY = p.floor(p.map(r, 1, this.maxR, 4, 16));
+    p.sphere(r, detailX, detailY);
+
     p.pop();
   }
 }

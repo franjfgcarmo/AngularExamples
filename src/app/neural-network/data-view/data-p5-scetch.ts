@@ -9,10 +9,10 @@ export class DataP5Scetch {
   constructor(private p: any,
               private width: number = 400,
               private height: number = 400,
-              private onClickHandler: (x: number, y: number) => void) {
+              private onClickHandler: (x: number, y: number, click: 'left' | 'right') => void) {
     p.setup = this.setup.bind(this);
     p.draw = this.draw.bind(this);
-    p.mouseClicked = this.mouseClicked.bind(this);
+    p.mousePressed = this.mouseClicked.bind(this);
   }
 
   setup() {
@@ -40,8 +40,16 @@ export class DataP5Scetch {
     if (this.onClickHandler) {
       const mouseX = this.p.mouseX;
       const mouseY = this.p.mouseY;
+
       if (mouseX > 0 && mouseY > 0 && mouseX <= this.width && mouseY <= this.p.height) {
-        this.onClickHandler(mouseX, mouseY);
+        let mouseButton: 'left' | 'right';
+        if (this.p.mouseButton === this.p.LEFT) {
+          mouseButton = 'left';
+        }
+        if (this.p.mouseButton === this.p.RIGHT) {
+          mouseButton = 'right';
+        }
+        this.onClickHandler(mouseX, mouseY, mouseButton);
         return false;
       }
     }

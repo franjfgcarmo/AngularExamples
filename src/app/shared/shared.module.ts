@@ -1,6 +1,5 @@
 import {ModuleWithProviders, NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {RandomService} from './random.service';
 import {FormsModule} from '@angular/forms';
 import {RaiseCardDirective} from './raise-card.directive';
 
@@ -23,16 +22,8 @@ import 'rxjs/add/operator/bufferCount';
 import 'rxjs/add/operator/repeat';
 import '../rx/add/operator/map-worker';
 import {
-  MatButtonModule,
-  MatCardModule,
-  MatCheckboxModule, MatGridListModule,
-  MatIconModule,
-  MatInputModule,
-  MatListModule,
-  MatSelectModule,
-  MatSidenavModule, MatSlideToggleModule,
-  MatToolbarModule,
-  MatTooltipModule
+  MatButtonModule, MatCardModule, MatCheckboxModule, MatGridListModule, MatIconModule, MatInputModule, MatListModule, MatSelectModule,
+  MatSidenavModule, MatSlideToggleModule, MatToolbarModule, MatTooltipModule
 } from '@angular/material';
 
 @NgModule({
@@ -59,7 +50,7 @@ export class SharedModule {
   static forRoot(): ModuleWithProviders {
     return {
       ngModule: SharedModule,
-      providers: [RandomService],
+      providers: [],
     };
   }
 }

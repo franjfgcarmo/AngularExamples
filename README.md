@@ -1,10 +1,16 @@
-# SuperheroicCoding: Some examples with Angular+ and other Frameworks
+# SuperheroicCoding: Some examples with Angular+, Angular-Material, p5, three.js  
 
-Just some cool example for topics that I am interested in. 
+Just some cool examples for topics that I am interested in. 
+The topics are science algorithms like poisson distribution and reaction diffusion.
+For visualization p5 and three.js are used.
+I always try to keep a good code structure as defined in the Angular styleguide.
+Also I love rxjs and use it as much as I can.   
+CSS wise I try to get my hands on grid layout.
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.3.1.
 
-A running version can be found on github pages: https://superheroiccoding.github.io/poisson
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.6.3.
+
+A running version (not always up to date) can be found on github pages: https://superheroiccoding.github.io/AngularExamples/
 
 ## Development server
 

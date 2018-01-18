@@ -52,13 +52,18 @@ export class NeuralNetworkComponent implements OnInit {
     this.brainService.toggleAutoTraining($event);
   }
 
-  addPoint({x, y}: { x: number, y: number }) {
-    const point = new Point(x / this.width, y / this.height);
+  addPoint({x, y, click}: { x: number, y: number, click: 'left'| 'right' }) {
+    console.log(click);
+    const point = new Point(x / this.width, y / this.height, () => click === 'left' ? 1 : -1);
     this.brainService.addPoint(point);
   }
 
   resetPerceptron() {
     this.brainService.createPerceptron();
+  }
+
+  clearPoints() {
+    this.brainService.clearPoints();
   }
 }
 

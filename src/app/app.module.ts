@@ -8,6 +8,8 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {InfoComponent} from './info/info.component';
 import {TechnologyComponent} from './info/technology/technology.component';
 import {NavItemComponent} from './nav-item/nav-item.component';
+import {CoreModule} from './core/core.module';
+import {TitleService} from './core/title.service';
 
 @NgModule({
   declarations: [
@@ -17,6 +19,7 @@ import {NavItemComponent} from './nav-item/nav-item.component';
     NavItemComponent,
   ],
   imports: [
+    CoreModule.forRoot(),
     BrowserModule,
     appRoutes,
     BrowserAnimationsModule,

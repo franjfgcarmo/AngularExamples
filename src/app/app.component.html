@@ -5,25 +5,21 @@
       <app-nav-item *ngFor="let route of routerLinks"
                     (click)="sidenav.close()"
                     [path]="route.path"
-                    [linkText]="route.linkText">
+                    [linkText]="route.data.linkText">
       </app-nav-item>
     </mat-nav-list>
   </mat-sidenav>
   <section class="pageGrid">
-    <mat-toolbar class="pageTitle" color="accent">
-      <button mat-icon-button (click)="sidenav.open()">
-        <mat-icon>menu</mat-icon>
-      </button>
-      <div>
-        <span>SuperheroicCoding Demos</span>
-        <br>
-        <span class="mat-subheading-2">
-      Click on the menu icon to choose examples.
-    </span>
-      </div>
+    <mat-toolbar role="header" class="pageTitle" color="accent">
+      <mat-toolbar-row>
+        <button mat-icon-button (click)="sidenav.open()">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <div>SuperheroicCoding Angular Demos</div>
+      </mat-toolbar-row>
     </mat-toolbar>
     <div class="pageContent">
-    <router-outlet></router-outlet>
+      <router-outlet></router-outlet>
     </div>
   </section>
 </mat-sidenav-container>

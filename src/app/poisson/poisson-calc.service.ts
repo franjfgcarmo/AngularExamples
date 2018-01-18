@@ -4,7 +4,7 @@ import {Circle} from './shared/circle';
 import {Subject} from 'rxjs/Subject';
 import {Observable} from 'rxjs/Observable';
 import {Vector} from './shared/vector';
-import {RandomService} from '../shared/random.service';
+import {RandomService} from '../core/random.service';
 import {Subscription} from 'rxjs/Subscription';
 import {Line} from './shared/line';
 import {ShapeFactoryService} from './shared/shape-factory.service';
