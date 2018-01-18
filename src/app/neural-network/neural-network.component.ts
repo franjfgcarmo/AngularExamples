@@ -13,7 +13,7 @@ export class NeuralNetworkComponent implements OnInit {
   width = 400;
   height = 400;
 
-  private autoLearning$: Observable<boolean>;
+  autoLearning$: Observable<boolean>;
 
   constructor(private brainService: BrainService) {
   }
