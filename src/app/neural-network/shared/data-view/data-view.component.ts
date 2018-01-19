@@ -1,11 +1,12 @@
 import {
-  AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges,
+  AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges,
   ViewChild
 } from '@angular/core';
-import {Perceptron} from '../shared/perceptron';
-import {Point} from '../shared/point';
+import {Perceptron} from '../perceptron';
+import {Point} from '../point';
 import {DataP5Scetch} from './data-p5-scetch';
 import * as P5 from 'p5';
+import {BrainService} from '../brain.service';
 
 interface ChangeInputs extends SimpleChanges {
   points: SimpleChange;
@@ -17,8 +18,7 @@ interface ChangeInputs extends SimpleChanges {
   templateUrl: './data-view.component.html',
   styleUrls: ['./data-view.component.css']
 })
-export class DataViewComponent implements OnInit, AfterViewInit, OnChanges {
-
+export class DataViewComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
   @ViewChild('dataCanvas') dataCanvas: ElementRef;
   @ViewChild('legendCanvas') legendCanvas: ElementRef;
@@ -27,11 +27,14 @@ export class DataViewComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() points: Point[];
   @Input() canvasWidth? = 400;
   @Input() canvasHeight? = 400;
+  @Input() showLinearDivider = true;
   @Output() dataViewClicked: EventEmitter<{ x: number, y: number, click: 'left' | 'right' }> = new EventEmitter();
 
   private dataScetch: any;
+  private legendScetch: any;
+  private dataP5: any;
 
-  constructor() {
+  constructor(private brainService: BrainService) {
   }
 
   ngOnChanges(changes: ChangeInputs): void {
@@ -52,18 +55,23 @@ export class DataViewComponent implements OnInit, AfterViewInit, OnChanges {
   ngOnInit() {
   }
 
+  ngOnDestroy(): void {
+    this.dataP5.remove();
+    this.legendScetch.remove();
+  }
+
   private initDataScetch() {
-    const dataScetch = new P5((p) => {
-      this.dataScetch = new DataP5Scetch(p, this.canvasWidth, this.canvasHeight, (x, y, click) => {
+   this.dataP5 = new P5((p) => {
+      this.dataScetch = new DataP5Scetch(p, this.canvasWidth, this.canvasHeight, this.brainService,(x, y, click) => {
         this.dataViewClicked.emit({x, y, click});
-      });
+      }, this.showLinearDivider);
       this.dataScetch.points = this.points;
       this.dataScetch.perceptron = this.perceptron;
     }, this.dataCanvas.nativeElement);
   }
 
   private initLegendScetch() {
-    const legendScetch = new P5(
+    this.legendScetch = new P5(
       (p) => {
         p.setup = () => {
           p.createCanvas(100, this.canvasHeight);

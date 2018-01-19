@@ -1,9 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {BrainService} from './perceptron-tab/brain.service';
-import {Point} from './shared/point';
-import {Observable} from 'rxjs/Observable';
-import {navLinks} from './neural-network-routing.module';
-import {Route} from '@angular/router';
+import {Component, OnInit} from '@angular/core';
 
 @Component({
   selector: 'app-neural-network',

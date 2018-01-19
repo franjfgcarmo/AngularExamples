@@ -1,5 +1,8 @@
 import {TrainData} from './train-data';
 import {LabelClass} from './point';
+import {timer} from 'rxjs/observable/timer';
+import {Observable} from 'rxjs/Observable';
+import {Subscription} from 'rxjs/Subscription';
 
 export class Perceptron {
 
@@ -9,6 +12,7 @@ export class Perceptron {
   lastGuess: number;
   lastLearnRate: number;
   lastInput: number[];
+  private learnTimeoutSub: Subscription;
 
   private static outputMapping(activationLevel: number): LabelClass {
     return activationLevel < 0.5 ? 0 : 1;
@@ -28,19 +32,25 @@ export class Perceptron {
   }
 
   guess(inputs: number[]): number {
-    this.lastInput = inputs;
     this.lastGuess = this.guessSilent(inputs);
+    this.lastInput = inputs;
     return this.lastGuess;
   }
 
   guessSilent(inputs: number[]): LabelClass {
-    return Perceptron.outputMapping(this.guessSig(inputs));
+    return Perceptron.outputMapping(this.guessSigSilent(inputs));
   }
 
 
-  guessSig(inputs: number[]): number {
+  guessSigSilent(inputs: number[]): number {
     const weightedSum = inputs.reduce((prev, input, index) => prev + input * this.weights[index], this.bias);
     return 1 / (1 + Math.exp(-weightedSum));
+  }
+
+  guessSig(inputs: number[]): number {
+    this.lastGuess = this.guessSigSilent(inputs);
+    this.lastInput = [...inputs];
+    return this.lastGuess;
   }
 
   train({inputs, expected}: TrainData, learnRate: number): number {
@@ -50,7 +60,10 @@ export class Perceptron {
 
     if (error !== 0.0) {
       this.isLearning = true;
-      setTimeout(() => this.isLearning = false, 500);
+      if (this.learnTimeoutSub) {
+        this.learnTimeoutSub.unsubscribe();
+      }
+      this.learnTimeoutSub = timer(500).subscribe((ignore) => this.isLearning = false);
       const adjustedWeights = this.weights.map((weight, index) =>
         weight + error * inputs[index] * learnRate
       );
@@ -61,11 +74,34 @@ export class Perceptron {
     return error;
   }
 
+  trainWithLastInput(error: number, learnRate: number): number {
+    this.lastLearnRate = learnRate;
+
+    if (error !== 0.0) {
+      this.isLearning = true;
+      if (this.learnTimeoutSub) {
+        this.learnTimeoutSub.unsubscribe();
+      }
+      this.learnTimeoutSub = timer(500).subscribe((ignore) => this.isLearning = false);
+      const adjustedWeights = this.weights.map((weight, index) =>
+        weight + error * this.lastInput[index] * learnRate
+      );
+
+      this.bias = this.bias + error * learnRate;
+      this.weights = adjustedWeights;
+    }
+    return error;
+  }
+
   get classSeparatorLine(): { x0: number, y0: number, x1: number, y1: number } {
+    if (this.inputConnections !== 2) {
+      return undefined;
+    }
     const y0 = this.bias / -this.weights[1];
     const y1 = (this.weights[0] + this.bias) / -this.weights[1];
 
     return {x0: 0, y0, x1: 0, y1};
+
   }
 
 }

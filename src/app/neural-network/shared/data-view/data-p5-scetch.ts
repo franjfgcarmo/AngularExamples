@@ -1,5 +1,6 @@
-import {Point} from '../shared/point';
-import {Perceptron} from '../shared/perceptron';
+import {Point} from '../point';
+import {Perceptron} from '../perceptron';
+import {BrainService} from '../brain.service';
 
 export class DataP5Scetch {
 
@@ -10,7 +11,9 @@ export class DataP5Scetch {
   constructor(private p: any,
               private width: number = 400,
               private height: number = 400,
-              private onClickHandler: (x: number, y: number, click: 'left' | 'right') => void) {
+              private brainService: BrainService,
+              private onClickHandler: (x: number, y: number, click: 'left' | 'right') => void,
+              private showLinearDivider = true) {
     p.setup = this.setup.bind(this);
     p.draw = this.draw.bind(this);
     p.mousePressed = this.mouseClicked.bind(this);
@@ -22,13 +25,13 @@ export class DataP5Scetch {
 
   draw() {
     if (this.perceptron) {
-      this.separationImg = this.p.createImage(this.width / 10, this.height / 10);
+      this.separationImg = this.p.createImage(this.width / 2, this.height / 2);
       this.separationImg.loadPixels();
       for (let x = 0; x < this.separationImg.width; x++) {
         for (let y = 0; y < this.separationImg.height; y++) {
           const inp0 = this.p.map(x, 0, this.separationImg.width, 0, 1);
           const inp1 = this.p.map(y, 0, this.separationImg.height, 0, 1);
-          const guessWithoutStep = this.perceptron.guessSig([inp0, inp1]);
+          const guessWithoutStep = this.brainService.guessSilent([inp0, inp1]);
           const absGuess = Math.abs(guessWithoutStep - 0.5);
           const colorValue = this.p.map(absGuess, 0, 0.1, 255, 128);
           this.separationImg.set(x, y, [colorValue, colorValue, colorValue, 255]);
@@ -42,11 +45,12 @@ export class DataP5Scetch {
       this.p.line(0, 0, this.p.width, this.p.height);
 
       this.points.forEach(point => {
-        const result = this.perceptron.guessSilent(point.data);
+        const result = this.brainService.guessSilent(point.data);
         point.showForResult(this.p, result);
       });
-
-      this.drawSeparationLine();
+      if (this.showLinearDivider) {
+        this.drawSeparationLine();
+      }
     }
   }
 
@@ -71,12 +75,13 @@ export class DataP5Scetch {
 
   private drawSeparationLine() {
     const classSeparatorLine = this.perceptron.classSeparatorLine;
-    const y0 = classSeparatorLine.y0 * this.height;
-    const y1 = this.width * classSeparatorLine.y1;
-
-    this.p.stroke(255, 200, 200);
-    this.p.strokeWeight(3);
-    this.p.line(0, y0, this.width, y1);
-    this.p.strokeWeight(1);
+    if (classSeparatorLine != null) {
+      const y0 = classSeparatorLine.y0 * this.height;
+      const y1 = this.width * classSeparatorLine.y1;
+      this.p.stroke(255, 200, 200);
+      this.p.strokeWeight(3);
+      this.p.line(0, y0, this.width, y1);
+      this.p.strokeWeight(1);
+    }
   }
 }
