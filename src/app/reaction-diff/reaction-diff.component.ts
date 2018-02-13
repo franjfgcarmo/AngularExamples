@@ -6,6 +6,7 @@ import {ReactionDiffConfigService} from './reaction-diff-config.service';
 import {ReactionDiffCalcParams} from './reaction-diff-calc-params';
 import {Observable} from 'rxjs/Observable';
 import {MatSelectChange} from '@angular/material';
+import {map, flatMap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-reaction-diff',
@@ -48,15 +49,15 @@ export class ReactionDiffComponent implements OnInit {
       this.addChemicalRadius = radius
     );
 
-    this.calculationTime$ = Observable.interval(1000)
-      .flatMap((ignored) => Observable.of(performance.getEntriesByName('calcNext')))
-      .map((measures: PerformanceMeasure[]) => {
+    this.calculationTime$ = Observable.interval(1000).pipe(
+      flatMap(ignored => Observable.of(performance.getEntriesByName('calcNext'))),
+      map((measures: PerformanceMeasure[]) => {
         if (measures.length === 0) {
           return 0;
         }
         return measures
           .reduce((acc, next) => acc + next.duration / measures.length, 0);
-      });
+      }));
   }
 
   public toggleRunSim(): void {

@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {ActivatedRoute, Data, NavigationEnd, Router} from '@angular/router';
-import {filter, map, switchMap, tap} from 'rxjs/operators';
+import {filter, map, switchMap} from 'rxjs/operators';
 import {AppRouteData} from '../app-routing.module';
 
 @Injectable()

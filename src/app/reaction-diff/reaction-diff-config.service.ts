@@ -4,6 +4,7 @@ import {Subject} from 'rxjs/Subject';
 import {CalcCellWeights} from './cell-weights';
 import {Observable} from 'rxjs/Observable';
 import {ReactionDiffCalcParams} from './reaction-diff-calc-params';
+import {map, tap} from 'rxjs/operators';
 
 interface ExampleParamOption {
   name: string;
@@ -12,7 +13,6 @@ interface ExampleParamOption {
 
 @Injectable()
 export class ReactionDiffConfigService {
-
 
   static addChemicalRadius = 5;
 
@@ -69,17 +69,21 @@ export class ReactionDiffConfigService {
 
   constructor() {
     this.calcParams$ = this.paramsSubject$.asObservable()
-      .map((calcParams) => Object.assign({}, calcParams));
-    this.calcCellWeights$ = this.weightsSubject$.asObservable()
-      .map((calcWeights) => Object.assign({}, calcWeights))
-      .map((weights) => this.trimWeights(weights));
+      .pipe(
+        map((calcParams) => Object.assign({}, calcParams))
+      );
+    this.calcCellWeights$ = this.weightsSubject$.asObservable().pipe(
+      map((calcWeights) => Object.assign({}, calcWeights)),
+      map((weights) => this.trimWeights(weights))
+    );
 
     this.addChemicalRadius$ = this.addChemicalRadiusSubject$.asObservable();
     this.selectedExample$ =
-      this.selectedExampleSubject$
-        .asObservable()
-        .do((example) =>
-          (example) ? this.updateCalcParams(example.value) : null).map((example) => example ? example.name : null);
+      this.selectedExampleSubject$.asObservable().pipe(
+        tap((example) =>
+          (example) ? this.updateCalcParams(example.value) : null),
+        map((example) => example ? example.name : null)
+      );
   }
 
   private trimWeights(weights: CalcCellWeights): CalcCellWeights {

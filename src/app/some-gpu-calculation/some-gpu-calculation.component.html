@@ -1,0 +1,55 @@
+<mat-card appRaiseCard class="gpu-card">
+  <mat-card-header>
+    <div mat-card-avatar class="gpu-header-image"></div>
+    <mat-card-title>Some GPU Accelerated Calculations</mat-card-title>
+    <mat-card-subtitle>using gpu.js</mat-card-subtitle>
+  </mat-card-header>
+  <div class="mat-card-image" #gpuResult></div>
+  <mat-card-content>
+    <form class="gpu-form" [formGroup]="additionForm" novalidate (ngSubmit)="submitForm()">
+      <div class="full-width">
+        <span>Red</span>
+        <mat-slider class="red-color-slider"
+                    thumb-label="true"
+                    min="0"
+                    max="255"
+                    color="warn"
+                    formControlName="r">
+        </mat-slider>
+        <mat-chip color="warn">{{additionForm.get('r').value}}</mat-chip>
+      </div>
+      <div class="full-width">
+        <span>Green</span>
+        <mat-slider class="green-color-slider"
+                    thumb-label="true"
+                    min="0"
+                    max="255"
+                    color="accent"
+                    formControlName="g">
+        </mat-slider>
+        <mat-chip color="warn">{{additionForm.get('g').value}}</mat-chip>
+      </div>
+      <div class="full-width">
+        <span>Blue</span>
+        <mat-slider class="blue-color-slider"
+                    thumb-label="true"
+                    min="0"
+                    max="255"
+                    formControlName="b">
+        </mat-slider>
+        <mat-chip color="warn">{{additionForm.get('b').value}}</mat-chip>
+      </div>
+      <div class="full-width">
+        <span>sinus divider</span>
+        <mat-slider class="blue-color-slider"
+                    thumb-label="true"
+                    min="1"
+                    max="200"
+                    formControlName="sinDivider">
+        </mat-slider>
+        <mat-chip color="accent">{{additionForm.get('sinDivider').value}}</mat-chip>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
+

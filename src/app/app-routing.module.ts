@@ -1,6 +1,7 @@
 import {Data, Route, RouterModule, Routes} from '@angular/router';
 import {ModuleWithProviders} from '@angular/core';
 import {InfoComponent} from './info/info.component';
+import {SomeGpuCalculationModule} from './some-gpu-calculation/some-gpu-calculation.module';
 
 export interface AppRouteData extends Data {
   linkText?: string;
@@ -30,6 +31,11 @@ export const routes: AppRoute[] = [
     path: 'neuralNetwork',
     loadChildren: 'app/neural-network/neural-network.module#NeuralNetworkModule',
     data: {linkText: 'Neural Networks'}
+  },
+  {
+    path: 'someGpuCalculations',
+    loadChildren: 'app/some-gpu-calculation/some-gpu-calculation.module#SomeGpuCalculationModule',
+    data: {linkText: 'Some Gpu Accelerated Calculations'}
   },
   {path: '**', redirectTo: 'home'}
 ];

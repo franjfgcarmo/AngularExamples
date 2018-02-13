@@ -9,7 +9,7 @@ import {InfoComponent} from './info/info.component';
 import {TechnologyComponent} from './info/technology/technology.component';
 import {NavItemComponent} from './nav-item/nav-item.component';
 import {CoreModule} from './core/core.module';
-import {TitleService} from './core/title.service';
+import { SomeGpuCalculationComponent } from './some-gpu-calculation/some-gpu-calculation.component';
 
 @NgModule({
   declarations: [

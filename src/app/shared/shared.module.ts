@@ -24,7 +24,7 @@ import 'rxjs/add/operator/repeat';
 import '../rx/add/operator/map-worker';
 import {
   MatButtonModule, MatCardModule, MatCheckboxModule, MatGridListModule, MatIconModule, MatInputModule, MatListModule, MatSelectModule,
-  MatSidenavModule, MatSlideToggleModule, MatTabsModule, MatToolbarModule, MatTooltipModule
+  MatSidenavModule, MatSlideToggleModule, MatTabsModule, MatToolbarModule, MatTooltipModule, MatSliderModule, MatChipsModule
 } from '@angular/material';
 
 @NgModule({
@@ -44,6 +44,8 @@ import {
     MatGridListModule,
     MatSlideToggleModule,
     MatTabsModule,
+    MatSliderModule,
+    MatChipsModule,
     RaiseCardDirective
   ],
   declarations: [RaiseCardDirective]

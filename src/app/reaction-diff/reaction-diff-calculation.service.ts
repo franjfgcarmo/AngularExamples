@@ -7,7 +7,11 @@ import {ReactionDiffConfigService} from './reaction-diff-config.service';
 import {Subject} from 'rxjs/Subject';
 import {Subscription} from 'rxjs/Subscription';
 import {addChemicals, AddChemicalsParams, calcNextDiffStep} from './worker-calculation';
-import {WorkerPostParams} from '../rx/operator/map-worker';
+import {GPU} from 'gpu.js';
+import {mapWorker, WorkerPostParams} from '../rx/operator/map-worker';
+import '../rx/add/operator/map-worker';
+import 'rxjs/add/operator/filter';
+import {filter} from 'rxjs/operators';
 
 @Injectable()
 export class ReactionDiffCalcServiceFactory {
@@ -102,8 +106,9 @@ export class ReactionDiffCalcService {
 
     this.workers$ = this.workerSubjects$
       .map(subject =>
-        subject
-          .filter(value => (this.calcRunning < this.numberThreads) && this.canCalculate)
+        subject.pipe(
+          filter(value => (this.calcRunning < this.numberThreads) && this.canCalculate)
+        )
           .mapWorker(calcNextDiffStep)
       );
 
