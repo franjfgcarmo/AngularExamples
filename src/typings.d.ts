@@ -6,3 +6,16 @@ interface NodeModule {
 }
 
 declare module 'gpu.js';
+
+interface KernelFunction {
+  (arg?: any): any;
+  (...argArray: any[]): any;
+  setGraphical(on: boolean): KernelFunction;
+  setOutput(outputDef: number[]):  KernelFunction;
+  getCanvas(): HTMLCanvasElement;
+  setOutputToTexture(outputToTexture: boolean);
+}
+
+interface GPU {
+  createKernel(kernelFunction: Function): KernelFunction;
+}

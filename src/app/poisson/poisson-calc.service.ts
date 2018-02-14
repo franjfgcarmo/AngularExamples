@@ -8,16 +8,10 @@ import {RandomService} from '../core/random.service';
 import {Subscription} from 'rxjs/Subscription';
 import {Line} from './shared/line';
 import {ShapeFactoryService} from './shared/shape-factory.service';
-
-import 'rxjs/add/observable/range';
-import 'rxjs/add/observable/defer';
-
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/takeWhile';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/toArray';
-import 'rxjs/add/operator/takeUntil';
+import {map, scan, switchMap, takeUntil, takeWhile, tap, toArray} from 'rxjs/operators';
+import {DeferObservable} from 'rxjs/observable/DeferObservable';
+import {of} from 'rxjs/observable/of';
+import {defer} from 'rxjs/observable/defer';
 
 @Injectable()
 export class PoissonCalcService {
@@ -52,9 +46,9 @@ export class PoissonCalcService {
   private calculationCompletedSubject: Subject<void>;
 
   constructor(private poissonConfig: PoissonConfigService, private shapeFactory: ShapeFactoryService, private random: RandomService) {
-    this.subscriptions = (this.poissonConfig.iterationsPerFrame$.subscribe((iterations) => this.iterationsPerFrame = iterations))
-      .add(this.poissonConfig.k$.subscribe((k) => this.k = k))
-      .add(this.poissonConfig.r$.subscribe((r) => this.r = r));
+    this.subscriptions = (this.poissonConfig.iterationsPerFrame$.subscribe(iterations => this.iterationsPerFrame = iterations))
+      .add(this.poissonConfig.k$.subscribe(k => this.k = k))
+      .add(this.poissonConfig.r$.subscribe(r => this.r = r));
     this.w = this.poissonConfig.w;
   }
 
@@ -75,11 +69,12 @@ export class PoissonCalcService {
       this.foundCirclesSubject.complete();
     }
     this.foundCirclesSubject = new Subject<Circle>();
-    this.foundCircles$ = this.foundCirclesSubject.asObservable()
-      .scan((pre: Circle[], current: Circle) => {
+    this.foundCircles$ = this.foundCirclesSubject.asObservable().pipe(
+      scan((pre: Circle[], current: Circle) => {
         pre.push(current);
         return pre;
-      }, []);
+      }, [])
+    );
 
     if (this.activesSubject) {
       this.activesSubject.complete();
@@ -103,27 +98,33 @@ export class PoissonCalcService {
 
   public calculate() {
     this.lineSubject = new Subject();
-    this.lineSubject.takeUntil(this.calculationCompletedSubject).toArray()
-      .subscribe((lines) => this.linesSubject.next(lines));
+    this.lineSubject.pipe(
+      takeUntil(this.calculationCompletedSubject),
+      toArray()
+    ).subscribe(lines => this.linesSubject.next(lines));
     this.calculationSubject.next();
   }
 
   private initCalculation() {
+    const iterationsPerFrame$: Observable<number> =
+      defer(() => Observable.range(0, this.iterationsPerFrame)).pipe(
+        takeWhile(ignored => this.active.length > 0),
+        tap(undefined, undefined, () => this.calculationCompletedSubject.next())
+      );
 
-    const iterationsPerFrame$: Observable<number> = Observable.defer(() => Observable.range(0, this.iterationsPerFrame))
-      .takeWhile(value => this.active.length > 0).do(undefined, undefined, () => this.calculationCompletedSubject.next());
     const randomActiveIndex$: Observable<number> =
-      Observable.defer(() => {
-        return Observable.of(Math.floor(this.random.randomTo(this.active.length)));
-      });
-    const randomActive$: Observable<{ active: Vector, randomActiveIndex: number }> = randomActiveIndex$.map((randomActiveIndex) => {
-      return {active: this.active[randomActiveIndex], randomActiveIndex};
-    });
+      DeferObservable.create(() => of(Math.floor(this.random.randomTo(this.active.length))));
 
-    this.calculationSubject
-      .switchMap(() => iterationsPerFrame$)
-      .switchMap((ignored) => randomActive$)
-      .do(this.onNextCalculation.bind(this))
+    const randomActive$: Observable<{ active: Vector, randomActiveIndex: number }> =
+      randomActiveIndex$.pipe(
+        map(randomActiveIndex => ({active: this.active[randomActiveIndex], randomActiveIndex}))
+      );
+
+    this.calculationSubject.pipe(
+      switchMap(() => iterationsPerFrame$),
+      switchMap(ignored => randomActive$),
+      tap(this.onNextCalculation.bind(this))
+    )
       .subscribe(
         ignored => { /* do nothing */
         },

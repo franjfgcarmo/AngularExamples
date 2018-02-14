@@ -4,9 +4,9 @@
     <mat-card-title>Some GPU Accelerated Calculations</mat-card-title>
     <mat-card-subtitle>using gpu.js</mat-card-subtitle>
   </mat-card-header>
-  <div class="mat-card-image" #gpuResult></div>
+  <canvas class="mat-card-image full-height" #gpuResult></canvas>
   <mat-card-content>
-    <form class="gpu-form" [formGroup]="additionForm" novalidate (ngSubmit)="submitForm()">
+    <form class="gpu-form" [formGroup]="additionForm" novalidate>
       <div class="full-width">
         <span>Red</span>
         <mat-slider class="red-color-slider"
@@ -40,16 +40,28 @@
         <mat-chip color="warn">{{additionForm.get('b').value}}</mat-chip>
       </div>
       <div class="full-width">
-        <span>sinus divider</span>
+        <span>Repeativness</span>
         <mat-slider class="blue-color-slider"
                     thumb-label="true"
+                    invert="true"
                     min="1"
                     max="200"
                     formControlName="sinDivider">
         </mat-slider>
         <mat-chip color="accent">{{additionForm.get('sinDivider').value}}</mat-chip>
       </div>
+      <div class="full-width">
+        <span>Speed</span>
+        <mat-slider class="blue-color-slider"
+                    thumb-label="true"
+                    min="1"
+                    max="100"
+                    formControlName="speed">
+        </mat-slider>
+        <mat-chip color="accent">{{additionForm.get('speed').value}}%</mat-chip>
+      </div>
     </form>
+    <div>Calculation time with GPU: {{calculationTime$ | async}}ms</div>
   </mat-card-content>
 </mat-card>
 

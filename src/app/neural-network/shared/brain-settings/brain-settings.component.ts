@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {BrainService} from '../brain.service';
-import {Point} from '../point';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
   selector: 'app-brain-settings',
@@ -11,7 +11,10 @@ export class BrainSettingsComponent implements OnInit {
 
   @Input() perceptronLayers: number[];
 
+  autoLearning$: Observable<boolean>;
+
   constructor(private brainService: BrainService) {
+    this.autoLearning$ = brainService.autoLearning$;
   }
 
   ngOnInit() {
